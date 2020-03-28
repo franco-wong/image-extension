@@ -3,6 +3,7 @@ const path = require("path");
 
 // Plugins
 const CopyPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const webpack = {
     mode: "development",
@@ -17,7 +18,8 @@ const webpack = {
     plugins: [
         new CopyPlugin([
             { from: "./src/manifest.json", to: "./" }
-        ])
+        ]),
+        new CleanWebpackPlugin()
     ] 
 };
 
