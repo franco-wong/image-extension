@@ -1,16 +1,5 @@
-const listOfImgs = document.querySelectorAll("img");
+import { ImgMetaDataAPI } from "./ImgMetaDataAPI";
 
-let allImgs = [];
-let currImgMetaData = {};
+const result = ImgMetaDataAPI.getImgMetaData();
 
-for(let img of listOfImgs){
-    currImgMetaData["src"] = img.src;
-    currImgMetaData["todaysDate"] = "";
-    currImgMetaData["alt"] = img.alt;
-    currImgMetaData["width"] = img.width;
-    currImgMetaData["height"] = img.height;
-    allImgs.push(currImgMetaData);
-}
-
-console.log(allImgs);
-// src, alt, todays date, width, height
+console.log(result);
