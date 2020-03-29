@@ -1,1 +1,5 @@
-alert('Coming from Franco Extension');
+import { ImgMetaDataAPI } from "./ImgMetaDataAPI";
+
+const result = ImgMetaDataAPI.getImgMetaData();
+
+console.log(result);
