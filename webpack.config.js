@@ -7,9 +7,10 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const webpack = {
     mode: "development",
+    devtool: "inline-source-map",
     entry: {
-        background: "./src/background.js",
-        content: "./src/content.js"
+        background: "./src/background/background.js",
+        content: "./src/content/content.js"
     },
     output: {
         filename: "[name].js",
@@ -17,7 +18,9 @@ const webpack = {
     },
     plugins: [
         new CopyPlugin([
-            { from: "./src/manifest.json", to: "./" }
+            { from: "./src/manifest.json", to: "./" },
+            { from: "./html/", to: "./html/" },
+            { from: "./css/", to: "./css/" }
         ]),
         new CleanWebpackPlugin()
     ] 
