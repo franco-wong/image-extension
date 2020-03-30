@@ -7,6 +7,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const webpack = {
     mode: "development",
+    devtool: "inline-source-map",
     entry: {
         background: "./src/background.js",
         content: "./src/content.js"

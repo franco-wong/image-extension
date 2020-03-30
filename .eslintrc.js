@@ -12,7 +12,7 @@ module.exports = {
     sourceType: 'module'
   },
   rules: {
-    "semi":["error","always"],
-    "brace-style":["error","1tbs",{"allowSingleLine":true}]
+    "semi": ["error", "always"],
+    "brace-style": ["error", "1tbs", { "allowSingleLine": true }]
   }
 }
