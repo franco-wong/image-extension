@@ -1,3 +1,5 @@
+import { fetchResourceString } from '../utility/helper';
+
 const SidebarStyles = {
   backgroundColor: 'transparent',
   height: '100%',
@@ -8,18 +10,6 @@ const SidebarStyles = {
   zIndex: '9000'
 };
 
-const SidebarAnimation = {
-  frames: [
-    { transform: 'translateX(100%)' },
-    { transform: 'translateX(0)' }
-  ],
-  timing: {
-    duration: 500,
-    fill: "both",
-    easing: "ease-in-out"
-  }
-} 
-
 /**
  * TODO: Comments
  */
@@ -29,39 +19,43 @@ export default class Sidebar {
     this.shadowRoot = null;
     this.isShown = false;
     this.animation = null;
+    this.wrapper = null;
   }
 
   init() {
     this.hostNode = document.createElement('div');
     this.shadowRoot = this.hostNode.attachShadow({ mode: 'open' });
-    this.applyStyles();
+    this.injectMarkup();
+    this.injectStyles();
+
+    // Inject into the webpage
     document.body.insertBefore(this.hostNode, document.body.firstChild);
-    this.isShown = true;
   }
 
-  applyStyles() {
+  async injectStyles() {
     Object.keys(SidebarStyles).forEach((key) => {
       this.hostNode.style[key] = SidebarStyles[key];
     });
 
-    // TODO: Make XHR request for the html and styles and inject into container
-    const parent = document.createElement('div');
-    parent.setAttribute("id", "image-test");
-
     const styles = document.createElement('style');
-    styles.textContent = `
-      #image-test {
-        background-color: black;
-        height: 100%;
-      }
-    `;
+    styles.textContent = await fetchResourceString('css/sidebar.css');
     this.shadowRoot.appendChild(styles);
-    this.shadowRoot.appendChild(parent);
-    this.animation = parent.animate(SidebarAnimation.frames, SidebarAnimation.timing);
   }
 
+  injectMarkup() {
+    this.wrapper = document.createElement('div');
+    this.wrapper.setAttribute('id', 'image-sidebar')
+    this.shadowRoot.appendChild(this.wrapper);
+  }
+
+  openSidebar() {
+    this.wrapper.style.transition = "transform 1s ease-in-out";
+    this.wrapper.style.transform = "translateX(0)";
+    this.isShown = true;
+  }
+  
   closeSidebar() {
-    this.animation.reverse();
+    this.wrapper.style.transform = "translateX(100%)";
     this.isShown = false;
   }
 }

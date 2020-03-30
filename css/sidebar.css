@@ -1,0 +1,5 @@
+#image-sidebar {
+  background-color: black;
+  height: 100%;
+  transform: translateX(100%);
+}
