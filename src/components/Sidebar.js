@@ -1,4 +1,4 @@
-import { fetchResourceString } from '../utility/helper';
+import ShadowDOMContainer from './ShadowDOMContainer';
 
 const SidebarStyles = {
   backgroundColor: 'transparent',
@@ -11,41 +11,11 @@ const SidebarStyles = {
 };
 
 /**
- * TODO: Comments
+ * Sidebar component with built-in logic and styles 
  */
-export default class Sidebar {
+export default class Sidebar extends ShadowDOMContainer {
   constructor() {
-    this.hostNode = null;
-    this.shadowRoot = null;
-    this.isShown = false;
-    this.animation = null;
-    this.wrapper = null;
-  }
-
-  init() {
-    this.hostNode = document.createElement('div');
-    this.shadowRoot = this.hostNode.attachShadow({ mode: 'open' });
-    this.injectMarkup();
-    this.injectStyles();
-
-    // Inject into the webpage
-    document.body.insertBefore(this.hostNode, document.body.firstChild);
-  }
-
-  async injectStyles() {
-    Object.keys(SidebarStyles).forEach((key) => {
-      this.hostNode.style[key] = SidebarStyles[key];
-    });
-
-    const styles = document.createElement('style');
-    styles.textContent = await fetchResourceString('css/sidebar.css');
-    this.shadowRoot.appendChild(styles);
-  }
-
-  injectMarkup() {
-    this.wrapper = document.createElement('div');
-    this.wrapper.setAttribute('id', 'image-sidebar')
-    this.shadowRoot.appendChild(this.wrapper);
+    super(SidebarStyles);
   }
 
   openSidebar() {
