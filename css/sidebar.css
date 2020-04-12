@@ -1,5 +1,114 @@
-#image-sidebar {
-  background-color: black;
-  height: 100%;
+* {
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+	font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
+}
+
+.gallery {
   transform: translateX(100%);
+	background-color: #fff;
+	height: 100%;
+	box-shadow: 0px 8px 10px -5px rgba(0,0,0,0.2), 
+		          0px 16px 24px 2px rgba(0,0,0,0.14), 
+		          0px 6px 30px 5px rgba(0,0,0,0.12);
+}
+
+.gallery__actions {
+	padding: 16px;
+}
+
+.gallery__showcase {
+	overflow-y: auto;
+	height: 80%;
+	border-bottom: 2px solid black;
+	position: relative;
+}
+
+.gallery__images {
+	background-color: #F5F5F5;
+	line-height: 0;
+	column-count: 3;
+	column-gap: 0px;
+}
+
+.gallery__loader {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.gallery__loader::after {
+	display: block;
+	content: "Loading Images";
+	left: 50%;
+	margin-top: 24px;
+	text-align: center;
+}
+
+.loader {
+	animation: MultiCircularProgess-keyframes-rotate 1.4s linear infinite;
+	color: #1976d2;
+	height: 50px;
+	margin: 0 auto;
+	width: 50px;
+}
+
+.loader__svg {
+	display: block;
+}
+
+.loader__svg circle {
+	animation: MultiCircularProgress-keyframe-circular-dash 1.4s ease-in-out infinite;
+	stroke-dasharray: 80px, 200px;
+	stroke-dashoffset: 0px;
+	stroke: currentColor;
+}
+
+.tile {
+	display: inline-block;
+	width: 100% !important;
+	height: auto !important;
+	cursor: pointer;
+	line-height: normal;
+	overflow: hidden;
+	text-overflow: ellipses;
+	white-space: nowrap;
+}
+
+.tile__layer {
+	display: inline-block;
+	border: 1px dotted grey;
+}
+
+.tile--selected {
+	background-color: rgb(24, 24, 24) !important;
+}
+
+.tile--selected img {
+	opacity: 0.5;
+}
+
+/* Keyframes - Copied from MaterialUI */ 
+@keyframes MultiCircularProgess-keyframes-rotate {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes MultiCircularProgress-keyframe-circular-dash {
+	0% {
+		stroke-dasharray: 1px, 200px;
+		stroke-dashoffset: 0px;
+	}
+	50% {
+		stroke-dasharray: 100px, 200px;
+		stroke-dashoffset: -15px;
+	}
+	100% {
+		stroke-dasharray: 100px, 200px;
+		stroke-dashoffset: -125px;
+	}
 }
