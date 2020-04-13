@@ -14,3 +14,14 @@ export function fetchResourceString(filename) {
       console.log(error);
     });
 }
+
+export function promisifyImageLoad(image) {
+  return new Promise((resolve, reject) => {
+    image.addEventListener('load', () => resolve(image));
+    image.addEventListener('error', reject);
+  });
+}
+
+export function updateLabel(element = document, id, value) {
+  element.querySelector(`#${id}`).textContent = value;
+}
