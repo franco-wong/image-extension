@@ -1,18 +1,22 @@
 import { ImgMetaDataAPI } from "../utility/ImgMetaDataAPI";
 import Sidebar from '../components/Sidebar';
 
-const result = ImgMetaDataAPI.getImgMetaData();
+const results = ImgMetaDataAPI.getImgMetaData();
 const sidebar = new Sidebar();
-sidebar.init();
+
+sidebar.init().then(() => {
+  chrome.runtime.onMessage.addListener(onMessageListener);
+  sidebar.loadImagesOntoGallery(results);
+});
 
 /**
  * Listen on incoming messages coming from background
  */
-chrome.runtime.onMessage.addListener((/* request, sender, cb */) => {
+function onMessageListener(/* request, sender, cb */) {
   if (!sidebar.isShown) {
     sidebar.openSidebar();
   }
   else {
     sidebar.closeSidebar();
   }
-});
+}
