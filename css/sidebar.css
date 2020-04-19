@@ -6,6 +6,10 @@
   font-weight: 400;
 }
 
+#send-btn {
+	width: 100%;
+}
+
 .gallery {
   transform: translateX(100%);
 	background-color: #fff;

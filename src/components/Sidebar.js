@@ -14,14 +14,39 @@ const SidebarStyles = {
 /**
  * Sidebar component with built-in logic and styles 
  */
-export default class Sidebar extends ShadowDOMContainer {
+export default class Sidebar {
   constructor() {
-    super(SidebarStyles);
-    this.selectedImages = [];
+    this.shadowDOMContainer = new ShadowDOMContainer();
+    this.isShown = false;
+    
+    // Defined here to grab the correct invocation context (this) when invoked from inside the proxy
+    const updateSidebar = (size) => {
+      this.shadowDOMContainer.container.querySelector('#send-btn').disabled = !(size > 0);
+      updateLabel(this.shadowDOMContainer.container, 'selected-images', size);
+    };
+
+    this.selectedImages = new Proxy(new Map(), {
+      get(target, property) {
+        if (property === 'size') { return target.size; }
+        
+        if (property === 'set' || property === 'delete') {
+          const operator = { set: 1, delete: -1 };
+          const size = target.size + operator[property];
+          updateSidebar(size);
+        }
+        
+        let value = Reflect.get(...arguments);
+        return typeof value === 'function' ? value.bind(target) : value;
+      }
+    });
+  }
+  
+  async init() {
+    return await this.shadowDOMContainer.init(SidebarStyles);
   }
 
   loadImagesOntoGallery(images) {
-    const [showcase, loader] = this.container.querySelectorAll('.gallery__showcase, .gallery__loader');
+    const [showcase, loader] = this.shadowDOMContainer.container.querySelectorAll('.gallery__showcase, .gallery__loader');
     let pImages = [];
 
     // Make each image unique, add listeners to be used to later to shake off broken images
@@ -40,13 +65,6 @@ export default class Sidebar extends ShadowDOMContainer {
     // Inject the loaded images onto the gallery, dismiss broken images
     Promise.allSettled(pImages)
       .then(results => results.filter(({ status }) => status === 'fulfilled'))
-      .then((filtered) => { // TODO: this is for test purposes, remove afterwards
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(filtered)
-          }, 3000);
-        })	
-      })
       .then(loadedImages => {
         loader.parentNode.removeChild(loader); // Loader suicides
       
@@ -57,33 +75,33 @@ export default class Sidebar extends ShadowDOMContainer {
           showcase.appendChild(layer); // Tile added to gallery
         }
       
-        updateLabel(this.container, 'total-images', loadedImages.length);
+        updateLabel(this.shadowDOMContainer.container, 'total-images', loadedImages.length);
       });
   }
 
   onImageSelected(e) {
+    const { index } = e.target.dataset;
+
     if (e.target.parentElement.classList.contains('tile--selected')) {
-      const { index } = e.target.dataset;
-      this.selectedImages = this.selectedImages.filter(image => image.dataset.index !== index);
+      this.selectedImages.delete(index);
     }
     else {
-      this.selectedImages.push(e.target);
+      this.selectedImages.set(index, e.target);
     }
     
     e.target.parentElement.classList.toggle('tile--selected');
-    updateLabel(this.container, 'selected-images', this.selectedImages.length);
   }
 
   // Toggle opening / closing sidebar
 
   openSidebar() {
-    this.container.style.transition = "transform 0.4s ease-in-out";
-    this.container.style.transform = "translateX(0)";
+    this.shadowDOMContainer.container.style.transition = "transform 0.4s ease-in-out";
+    this.shadowDOMContainer.container.style.transform = "translateX(0)";
     this.isShown = true;
   }
   
   closeSidebar() {
-    this.container.style.transform = "translateX(100%)";
+    this.shadowDOMContainer.container.style.transform = "translateX(100%)";
     this.isShown = false;
   }
 }

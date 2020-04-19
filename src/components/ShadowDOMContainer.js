@@ -5,25 +5,23 @@ import { fetchResourceString } from '../utility/helper';
  * of the Shadow DOM and inject markup with styles.
  */
 export default class ShadowDOMContainer {
-  constructor(containerStyles) {
-    this.containerStyles = containerStyles
+  constructor() {
     this.hostNode = null;
     this.shadowRoot = null;
     this.container = null;
-    this.isShown = false;
   }
 
-  async init() {
+  async init(styles) {
     this.hostNode = document.createElement('div');
     this.shadowRoot = this.hostNode.attachShadow({ mode: 'open' });
-    await this.injectStyles();
+    await this.injectStyles(styles);
     await this.injectMarkup();
     document.body.insertBefore(this.hostNode, document.body.firstChild); // Inject webpage's DOM
   }
 
-  async injectStyles() {
-    Object.keys(this.containerStyles).forEach((key) => {
-      this.hostNode.style[key] = this.containerStyles[key];
+  async injectStyles(containerStyles) {
+    Object.keys(containerStyles).forEach((key) => {
+      this.hostNode.style[key] = containerStyles[key];
     });
 
     const styles = document.createElement('style');
