@@ -1,76 +1,32 @@
-let isSidebarOpen = false; // TODO: Change this inefficient way of handling open and close
-let accessToken = null;
+const now = new Date();
+const accessToken = {
+  code: '',
+  expiry: 0
+};
 
 chrome.browserAction.onClicked.addListener((tab) => {
-  // if (!isSidebarOpen) {
-  //   chrome.tabs.sendMessage(tab.id, "");
-  //   return;
-  // }
+  const epochTime = Math.round(now.getTime() / 1000);
+
+  if (epochTime < accessToken.expiry) {
+    chrome.tabs.sendMessage(tab.id, "");
+    return;
+  }
 
   launchWebAuthFlow()
-    .then((response) => {
-      isSidebarOpen = true;
-      accessToken = response.match(/(?<=#access_token=).*?(?=&)/g)[0];
-      console.log(accessToken);
-      pushImage(accessToken);
-      // chrome.tabs.sendMessage(tab.id, "");
+    .then(parseAuthResponse)
+    .then(() => {
+      chrome.tabs.sendMessage(tab.id, "");
+      // TODO: section for your api calls if you needed
     })
-    .catch((error) => {
-      isSidebarOpen = false;
-      console.log(error);
-    });
+    .catch(console.error);
 });
 
-/*
-TODO: Move to new file
-*/
 
-/*
-Push images
 
-POST https://www.googleapis.com/upload/drive/v3/files?uploadType=media HTTP/1.1
-Content-Type: image/jpeg
-Content-Length: [NUMBER_OF_BYTES_IN_FILE]
-Authorization: Bearer [YOUR_AUTH_TOKEN]
-*/
-const REQUEST_URI = "https://www.googleapis.com/upload/drive/v3/files";
-const CONTENT_TYPE = "image/png";
-const UPLOAD_TYPE = "media";
-
-function getFullUploadRequestURI() {
-  return `${REQUEST_URI}?uploadType=${UPLOAD_TYPE}`;
-}
-//?uploadType=${UPLOAD_TYPE}
-function getAuthBearer(accessToken) {
-  return `Bearer ${accessToken}`;
-}
-
-//TODO: figure out the length of the file
-function getFileLength(file) {
-  return file.length;
-}
-
-function getHeaderJSON() {
-  const formData = new FormData();
-  const testImg = new Image();
-  testImg.src = "./test.png";
-  formData.append("img", testImg);
-  return {
-    headers: {
-      "Content-Type": CONTENT_TYPE,
-      // ,
-      // "Content-Length": getFileLength(),
-    },
-    method: "POST",
-    Authorization: getAuthBearer(),
-    body: formData,
-  };
-}
-
-function pushImage(accessToken) {
-  window.fetch(getFullUploadRequestURI()).then((response) => {
-    console.log(response);
-  });
+function parseAuthResponse(response) {
+  const qParams = new URLSearchParams(response); // Does not pick up fragment identifiers, need regex to parse token value
+  accessToken.code = response.match(/(?<=#access_token=).*?(?=&)/g)[0];
+  accessToken.expiry = parseInt(qParams.get('expires_in'), 10) + Math.round(now.getTime() / 1000);
 }
 
 function launchWebAuthFlow() {
