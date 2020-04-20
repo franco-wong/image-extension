@@ -25,3 +25,9 @@ export function promisifyImageLoad(image) {
 export function updateLabel(element = document, id, value) {
   element.querySelector(`#${id}`).textContent = value;
 }
+
+export function inlineCSS(element, styles) {
+  Object.keys(styles).forEach((key) => {
+    element.style[key] = styles[key];
+  });
+}

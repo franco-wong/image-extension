@@ -1,5 +1,5 @@
 import ShadowDOMContainer from './ShadowDOMContainer';
-import { promisifyImageLoad, updateLabel } from '../utility/helper';
+import { promisifyImageLoad, updateLabel, inlineCSS } from '../utility/helper';
 
 const SidebarStyles = {
   backgroundColor: 'transparent',
@@ -8,7 +8,7 @@ const SidebarStyles = {
   right: '0',
   top: '0',
   width: '400px',
-  zIndex: '9000'
+  zIndex: '9001'
 };
 
 /**
@@ -18,7 +18,8 @@ export default class Sidebar {
   constructor() {
     this.shadowDOMContainer = new ShadowDOMContainer();
     this.isShown = false;
-    
+    this.inActiveElement = this.addInActiveSurfaceElement();
+
     // Defined here to grab the correct invocation context (this) when invoked from inside the proxy
     const updateSidebar = (size) => {
       this.shadowDOMContainer.container.querySelector('#send-btn').disabled = !(size > 0);
@@ -39,6 +40,27 @@ export default class Sidebar {
         return typeof value === 'function' ? value.bind(target) : value;
       }
     });
+  }
+
+  // To shadow the background when the drawer is open
+  addInActiveSurfaceElement() {
+    const inActiveSurfaceElement = document.createElement('div');
+
+    inlineCSS(inActiveSurfaceElement, {
+      backgroundColor: 'rgba(0, 0, 0)',
+      opacity: '0',
+      position: 'fixed',
+      top: '0',
+      transition: 'opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+      bottom: '0',
+      left: '0',
+      right: '0',
+      zIndex: '9000'
+    });
+
+    document.body.prepend(inActiveSurfaceElement);
+
+    return inActiveSurfaceElement;
   }
   
   async init() {
@@ -98,10 +120,12 @@ export default class Sidebar {
     this.shadowDOMContainer.container.style.transition = "transform 0.4s ease-in-out";
     this.shadowDOMContainer.container.style.transform = "translateX(0)";
     this.isShown = true;
+    this.inActiveElement.style.opacity = '0.5';
   }
   
   closeSidebar() {
     this.shadowDOMContainer.container.style.transform = "translateX(100%)";
     this.isShown = false;
+    this.inActiveElement.style.opacity = '0';
   }
 }
