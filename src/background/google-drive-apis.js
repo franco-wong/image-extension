@@ -6,26 +6,47 @@ Content-Type: image/jpeg
 Content-Length: [NUMBER_OF_BYTES_IN_FILE]
 Authorization: Bearer [YOUR_AUTH_TOKEN]
 */
-let ACCESS_TOKEN;
+var access_token;
+const BOUNDARY = "naween";
+const DELIMITER = "\r\n--" + BOUNDARY + "\r\n";
+const CLOSE_DELIM = "\r\n--" + BOUNDARY + "--";
 const REQUEST_URI = "https://www.googleapis.com/upload/drive/v3/files";
-const CONTENT_TYPE = "image/png";
-const UPLOAD_TYPE = "media";
-const BASE64_IMAGES = {
+const HEADER_CONTENT_TYPE = `multipart/related; boundary=${BOUNDARY}`;
+const UPLOAD_TYPE = "multipart";
+const IMAGE_ARRAYBUFFER = {
   arrayBuffer: "",
   length: 0,
+  metadata: {
+    name: "test.png",
+    description: "test test test",
+  },
 };
+
+export function generateRequestBody(arrayBuffer) {
+  var multipartRequestBody =
+    DELIMITER +
+    "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
+    JSON.stringify(IMAGE_ARRAYBUFFER.metadata) +
+    "\r\n" +
+    DELIMITER +
+    "Content-Type: image/png\r\n" +
+    "Content-Transfer-Encoding: base64\r\n\r\n" +
+    arrayBuffer +
+    CLOSE_DELIM;
+  return multipartRequestBody;
+}
 
 export function getFullUploadRequestURI() {
   return `${REQUEST_URI}?uploadType=${UPLOAD_TYPE}`;
 }
 
 export function getAuthBearer() {
-  return `Bearer ${ACCESS_TOKEN}`;
+  return `Bearer ${access_token}`;
 }
 
 //TODO: figure out the length of the file
-export function getFileLength(file) {
-  return file.length;
+export function getFileLength() {
+  return 1;
 }
 
 export function getBase64OfURL(url) {
@@ -35,8 +56,15 @@ export function getBase64OfURL(url) {
     .then((blob) => {
       var reader = new FileReader();
       reader.onloadend = function () {
-        BASE64_IMAGES.arrayBuffer = reader.result;
-        BASE64_IMAGES.length = blob.size;
+        console.log(reader.result);
+        IMAGE_ARRAYBUFFER.arrayBuffer = btoa(
+          new Uint8Array(reader.result).reduce(
+            (data, byte) => data + String.fromCharCode(byte),
+            ""
+          )
+        );
+        //String.fromCharCode.apply(null, new Uint8Array(reader.result))
+        IMAGE_ARRAYBUFFER.length = blob.size;
         // Once the data has been loaded, call the google drive upload
         pushImages();
       };
@@ -45,13 +73,16 @@ export function getBase64OfURL(url) {
 }
 
 export function getHeaderJSON() {
+  var requestBody = generateRequestBody(IMAGE_ARRAYBUFFER.arrayBuffer);
+  console.log(requestBody);
   return {
     method: "POST",
     headers: {
       Authorization: getAuthBearer(),
-      "Content-Type": CONTENT_TYPE,
+      "Content-Type": HEADER_CONTENT_TYPE,
+      "Content-Length": requestBody.length,
     },
-    body: BASE64_IMAGES.arrayBuffer,
+    body: requestBody,
   };
 }
 
@@ -64,12 +95,13 @@ export function pushImages() {
 export function downloadBase64Img() {
   getBase64OfURL(
     "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png"
+    // "https://png.pngtree.com/element_our/png/20180928/beautiful-hologram-water-color-frame-png_119551.jpg"
   );
 }
 
 export function startUploading(accessToken) {
   // include a list of images to download
-  ACCESS_TOKEN = accessToken;
+  access_token = accessToken;
 
   downloadBase64Img();
 }
