@@ -1,9 +1,10 @@
+import { startUploading } from "./google-drive-apis";
 const now = new Date();
 const accessToken = {
-  code: '',
+  code: "",
   expiry: 0,
-  tokenType: '',
-  scope: ''
+  tokenType: "",
+  scope: "",
 };
 
 chrome.browserAction.onClicked.addListener((tab) => {
@@ -18,19 +19,18 @@ chrome.browserAction.onClicked.addListener((tab) => {
     .then(parseAuthResponse)
     .then(() => {
       chrome.tabs.sendMessage(tab.id, "");
-      // TODO: section for your api calls if you needed
+      startUploading(accessToken.code);
     })
     .catch(console.error);
 });
 
-
-
 function parseAuthResponse(response) {
   const qParams = new URLSearchParams(response); // Does not pick up fragment identifiers, need regex to parse token value
   accessToken.code = response.match(/(?<=#access_token=).*?(?=&)/g)[0];
-  accessToken.expiry = parseInt(qParams.get('expires_in'), 10) + Math.round(now.getTime() / 1000);
-  accessToken.tokenType = qParams.get('token_type');
-  accessToken.scope = qParams.get('scope');
+  accessToken.expiry =
+    parseInt(qParams.get("expires_in"), 10) + Math.round(now.getTime() / 1000);
+  accessToken.tokenType = qParams.get("token_type");
+  accessToken.scope = qParams.get("scope");
 }
 
 function launchWebAuthFlow() {
