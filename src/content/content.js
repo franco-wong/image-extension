@@ -1,5 +1,8 @@
 import { ImgMetaDataAPI } from "../utility/ImgMetaDataAPI";
-import Sidebar from '../components/Sidebar';
+import { inlineCSS } from "../utility/helper";
+import Sidebar from "../components/Sidebar";
+
+HTMLDivElement.prototype.css = inlineCSS;
 
 const results = ImgMetaDataAPI.getImgMetaData();
 const sidebar = new Sidebar();
@@ -15,8 +18,7 @@ sidebar.init().then(() => {
 function onMessageListener(/* request, sender, cb */) {
   if (!sidebar.isShown) {
     sidebar.openSidebar();
-  }
-  else {
+  } else {
     sidebar.closeSidebar();
   }
 }
