@@ -1,13 +1,26 @@
 /*
 Push images
 
-POST https://www.googleapis.com/upload/drive/v3/files?uploadType=media HTTP/1.1
-Content-Type: image/jpeg
-Content-Length: [NUMBER_OF_BYTES_IN_FILE]
+POST https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart HTTP/1.1
 Authorization: Bearer [YOUR_AUTH_TOKEN]
+Content-Type: multipart/related; boundary=foo_bar_baz
+Content-Length: [NUMBER_OF_BYTES_IN_ENTIRE_REQUEST_BODY]
+
+--foo_bar_baz
+Content-Type: application/json; charset=UTF-8
+
+{
+  "name": "myObject"
+}
+
+--foo_bar_baz
+Content-Type: image/jpeg
+
+[JPEG_DATA]
+--foo_bar_baz--
 */
-var access_token;
-var imageArray = [];
+let access_token;
+let imageArray = [];
 const BOUNDARY = "naween";
 const REQUEST_BODY_DELIM = {
   DELIMITER: "\r\n--" + BOUNDARY + "\r\n",
@@ -25,19 +38,6 @@ function getAuthBearer() {
   return `Bearer ${access_token}`;
 }
 
-class ImageClass {
-  constructor(url, contentType, name, description) {
-    this.url = url;
-    this.contentType = contentType;
-    this.base64 = "";
-    this.length = 0;
-    this.metadata = {
-      name,
-      description,
-    };
-  }
-}
-
 function generateRequestBody(imageObj) {
   return (
     REQUEST_BODY_DELIM.DELIMITER +
@@ -52,21 +52,12 @@ function generateRequestBody(imageObj) {
   );
 }
 
-function ArrayBufferToBase64(ab) {
-  return btoa(
-    new Uint8Array(ab).reduce(
-      (data, byte) => data + String.fromCharCode(byte),
-      ""
-    )
-  );
-}
-
 function getBase64OfURL(imageObj) {
   window
     .fetch(imageObj.url)
     .then((response) => response.blob())
     .then((blob) => {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onloadend = function () {
         imageObj.base64 = ArrayBufferToBase64(reader.result);
         imageObj.length = blob.size;
@@ -77,7 +68,7 @@ function getBase64OfURL(imageObj) {
 }
 
 function getHeaderJSON(imageObj) {
-  var requestBody = generateRequestBody(imageObj);
+  let requestBody = generateRequestBody(imageObj);
   return {
     method: "POST",
     headers: {
@@ -100,15 +91,15 @@ function sendRequest(imageObj) {
 export function startUploading(accessToken, listOfImages = []) {
   access_token = accessToken;
 
-  var url1 =
+  let url1 =
     "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png";
 
-  var url2 =
+  let url2 =
     "https://png.pngtree.com/element_our/png/20180928/beautiful-hologram-water-color-frame-png_119551.jpg";
-  var arr = [url1, url2];
+  let arr = [url1, url2];
 
   for (let url of arr) {
-    var imageClass = new ImageClass(
+    let imageClass = new ImageClass(
       url,
       "image/png",
       "franco's test",
