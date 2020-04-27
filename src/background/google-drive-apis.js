@@ -19,6 +19,9 @@ Content-Type: image/jpeg
 [JPEG_DATA]
 --foo_bar_baz--
 */
+
+import { ArrayBufferToBase64 } from "../utility/helper";
+
 let access_token;
 let imageArray = [];
 const BOUNDARY = "naween";
@@ -38,37 +41,35 @@ function getAuthBearer() {
   return `Bearer ${access_token}`;
 }
 
-function generateRequestBody(imageObj) {
-  return (
-    REQUEST_BODY_DELIM.DELIMITER +
-    "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
-    JSON.stringify(imageObj.metadata) +
-    "\r\n" +
-    REQUEST_BODY_DELIM.DELIMITER +
-    `Content-Type: ${imageObj.contentType}\r\n` +
-    "Content-Transfer-Encoding: base64\r\n\r\n" +
-    imageObj.base64 +
+function buildRequestBody(base64, metaData, imageType) {
+  return `${
+    REQUEST_BODY_DELIM.DELIMITER
+  }Content-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(
+    metaData
+  )}\r\n${
+    REQUEST_BODY_DELIM.DELIMITER
+  }Content-Type: ${imageType}\r\nContent-Transfer-Encoding: base64\r\n\r\n${base64}${
     REQUEST_BODY_DELIM.CLOSE_DELIM
-  );
+  }`;
 }
 
-function getBase64OfURL(imageObj) {
-  window
-    .fetch(imageObj.url)
-    .then((response) => response.blob())
-    .then((blob) => {
-      let reader = new FileReader();
-      reader.onloadend = function () {
-        imageObj.base64 = ArrayBufferToBase64(reader.result);
-        imageObj.length = blob.size;
-        sendRequest(imageObj);
-      };
-      reader.readAsArrayBuffer(blob);
-    });
+function getBase64Representation(imageBlob) {
+  return new Promise((resolve, reject) => {
+    let reader = new FileReader();
+    reader.onloadend = function () {
+      resolve(ArrayBufferToBase64(reader.result));
+    };
+    reader.readAsArrayBuffer(imageBlob);
+  });
 }
 
-function getHeaderJSON(imageObj) {
-  let requestBody = generateRequestBody(imageObj);
+function getImageBlob(url) {
+  return window.fetch(url).then((response) => {
+    return response.blob();
+  });
+}
+
+function buildRequestHeader(requestBody) {
   return {
     method: "POST",
     headers: {
@@ -80,12 +81,11 @@ function getHeaderJSON(imageObj) {
   };
 }
 
-function sendRequest(imageObj) {
-  window
-    .fetch(getFullUploadRequestURI(), getHeaderJSON(imageObj))
-    .then((response) => {
-      console.log(response);
-    });
+function sendGoogleApiRequest(requestHeader) {
+  console.log(requestHeader);
+  window.fetch(getFullUploadRequestURI(), requestHeader).then((response) => {
+    console.log(response);
+  });
 }
 
 export function startUploading(accessToken, listOfImages = []) {
@@ -93,19 +93,23 @@ export function startUploading(accessToken, listOfImages = []) {
 
   let url1 =
     "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png";
-
   let url2 =
     "https://png.pngtree.com/element_our/png/20180928/beautiful-hologram-water-color-frame-png_119551.jpg";
-  let arr = [url1, url2];
 
-  for (let url of arr) {
-    let imageClass = new ImageClass(
-      url,
-      "image/png",
-      "franco's test",
-      "this is a test description"
-    );
-    getBase64OfURL(imageClass);
-    console.log(imageClass);
+  for (let url of [url1, url2]) {
+    const imageType = "image/png";
+    const metaData = {
+      name: "franco's test",
+      description: "this is a test description",
+    };
+    getImageBlob(url)
+      .then(getBase64Representation)
+      .then((base64) => {
+        return new Promise((resolve) =>
+          resolve(buildRequestBody(base64, metaData, imageType))
+        );
+      })
+      .then(buildRequestHeader)
+      .then(sendGoogleApiRequest);
   }
 }
