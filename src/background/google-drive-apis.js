@@ -20,8 +20,6 @@ Content-Type: image/jpeg
 --foo_bar_baz--
 */
 
-import { ArrayBufferToBase64 } from "../utility/helper";
-
 let access_token;
 let imageArray = [];
 const BOUNDARY = "naween";
@@ -57,9 +55,9 @@ function getBase64Representation(imageBlob) {
   return new Promise((resolve, reject) => {
     let reader = new FileReader();
     reader.onloadend = function () {
-      resolve(ArrayBufferToBase64(reader.result));
+      resolve(reader.result.split(";")[1].split(",")[1]);
     };
-    reader.readAsArrayBuffer(imageBlob);
+    reader.readAsDataURL(imageBlob);
   });
 }
 

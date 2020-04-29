@@ -30,12 +30,3 @@ export function inlineCSS(styles) {
     this.style[key] = styles[key];
   });
 }
-
-export function ArrayBufferToBase64(ab) {
-  return btoa(
-    new Uint8Array(ab).reduce(
-      (data, byte) => data + String.fromCharCode(byte),
-      ""
-    )
-  );
-}
