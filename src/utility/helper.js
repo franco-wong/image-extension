@@ -5,8 +5,7 @@ export function fetchResourceString(filename) {
     .then((response) => {
       if (response.ok) {
         return response.text();
-      }
-      else {
+      } else {
         Promise.reject(response.statusText);
       }
     })
@@ -17,11 +16,17 @@ export function fetchResourceString(filename) {
 
 export function promisifyImageLoad(image) {
   return new Promise((resolve, reject) => {
-    image.addEventListener('load', () => resolve(image));
-    image.addEventListener('error', reject);
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", reject);
   });
 }
 
 export function updateLabel(element = document, id, value) {
   element.querySelector(`#${id}`).textContent = value;
+}
+
+export function inlineCSS(styles) {
+  Object.keys(styles).forEach((key) => {
+    this.style[key] = styles[key];
+  });
 }
