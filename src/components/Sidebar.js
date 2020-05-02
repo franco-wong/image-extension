@@ -62,6 +62,11 @@ export default class Sidebar {
       zIndex: "-1",
     });
 
+    // Close the sidebar if the user clicks outside the sidebar's scope
+    inActiveSurfaceElement.addEventListener("click", () => {
+      this.closeSidebar();
+    });
+
     document.body.prepend(inActiveSurfaceElement);
 
     return inActiveSurfaceElement;
