@@ -34,11 +34,12 @@ export default class ImageGallery {
   init(results) {
     this.loadImagesOntoGallery(results);
 
+    console.log(results);
+
     // Set up event listener for sending / uploading photos to drive
-    this.shadowDOMContainer.container.addEventListener(
-      "click",
-      this.uploadPhotos
-    );
+    this.shadowDOMContainer.shadowRoot
+      .querySelector("#send-btn")
+      .addEventListener("click", () => this.uploadPhotos());
   }
 
   loadImagesOntoGallery(images) {
@@ -100,6 +101,22 @@ export default class ImageGallery {
    * Prompt background script to upload the selected images from the sidebar
    */
   uploadPhotos() {
-    console.log("called...");
+    const uploadImages = [];
+
+    for (const [_, image] of this.selectedImages) {
+      uploadImages.push(image.src);
+    }
+
+    console.log(uploadImages);
+
+    chrome.runtime.sendMessage(
+      {
+        command: "UPLOAD_IMAGES",
+        uploadImages,
+      },
+      () => {
+        console.log("images received...");
+      }
+    );
   }
 }
