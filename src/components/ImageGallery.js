@@ -34,8 +34,6 @@ export default class ImageGallery {
   init(results) {
     this.loadImagesOntoGallery(results);
 
-    console.log(results);
-
     // Set up event listener for sending / uploading photos to drive
     this.shadowDOMContainer.shadowRoot
       .querySelector("#send-btn")

@@ -13,17 +13,14 @@ export default class ShadowDOMContainer {
 
   async init(styles) {
     this.hostNode = document.createElement("div");
+    this.hostNode.css(styles);
     this.shadowRoot = this.hostNode.attachShadow({ mode: "open" });
-    await this.injectStyles(styles);
+    await this.injectStyles();
     await this.injectMarkup();
     document.body.insertBefore(this.hostNode, document.body.firstChild); // Inject webpage's DOM
   }
 
-  async injectStyles(containerStyles) {
-    Object.keys(containerStyles).forEach((key) => {
-      this.hostNode.style[key] = containerStyles[key];
-    });
-
+  async injectStyles() {
     const styles = document.createElement("style");
     styles.textContent = await fetchResourceString("css/sidebar.css");
     this.shadowRoot.appendChild(styles);

@@ -9,9 +9,7 @@ export function fetchResourceString(filename) {
         Promise.reject(response.statusText);
       }
     })
-    .catch((error) => {
-      console.log(error);
-    });
+    .catch(console.error);
 }
 
 export function promisifyImageLoad(image) {
