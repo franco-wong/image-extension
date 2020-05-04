@@ -7,6 +7,18 @@ const accessToken = {
   scope: "",
 };
 
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  switch (request.command) {
+    case "UPLOAD_IMAGES":
+      // TODO: Hook Google API calls from here
+      // For now only the src string is being sent, fake the metadata,
+      // this will be addressed in a subsequent PR
+      console.log(request.uploadImages);
+      sendResponse(true);
+      break;
+  }
+});
+
 chrome.browserAction.onClicked.addListener((tab) => {
   const epochTime = Math.round(now.getTime() / 1000);
 
