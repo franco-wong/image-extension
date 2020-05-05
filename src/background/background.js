@@ -1,4 +1,5 @@
 import { startUploading } from "./google-drive-apis";
+import { findAndCreateFolder } from "./get-drive-folder";
 const now = new Date();
 const accessToken = {
   code: "",
@@ -10,6 +11,11 @@ const accessToken = {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.command) {
     case "UPLOAD_IMAGES":
+      // findAndCreateFolder(accessToken.code);
+      // get chrome tab url to get the source of the image
+      chrome.tabs.getSelected(null, function(tab){
+        startUploading(accessToken.code,request.uploadImages,tab.url);
+      });
       // TODO: Hook Google API calls from here
       // For now only the src string is being sent, fake the metadata,
       // this will be addressed in a subsequent PR
@@ -31,7 +37,6 @@ chrome.browserAction.onClicked.addListener((tab) => {
     .then(parseAuthResponse)
     .then(() => {
       chrome.tabs.sendMessage(tab.id, "");
-      startUploading(accessToken.code);
     })
     .catch(console.error);
 });

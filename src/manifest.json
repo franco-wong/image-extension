@@ -23,6 +23,7 @@
       "css/*.css"
     ],
     "permissions": [
-      "identity"
+      "identity",
+      "tabs"
     ]
 }

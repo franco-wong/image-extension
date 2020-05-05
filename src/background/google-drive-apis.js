@@ -21,7 +21,6 @@ Content-Type: image/jpeg
 */
 
 let access_token;
-let imageArray = [];
 const BOUNDARY = "naween";
 const REQUEST_BODY_DELIM = {
   DELIMITER: "\r\n--" + BOUNDARY + "\r\n",
@@ -39,14 +38,16 @@ function getAuthBearer() {
   return `Bearer ${access_token}`;
 }
 
-function buildRequestBody(base64, metaData, imageType) {
+// a base64 string will start with "data:[image/jpeg];base64,[/9j/4AAQS...]", the []s is what I'm extracting below
+function buildRequestBody(base64, metaData) {
+  const base64_data = base64.split(";");
   return `${
     REQUEST_BODY_DELIM.DELIMITER
   }Content-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(
     metaData
   )}\r\n${
     REQUEST_BODY_DELIM.DELIMITER
-  }Content-Type: ${imageType}\r\nContent-Transfer-Encoding: base64\r\n\r\n${base64}${
+  }Content-Type: ${base64_data[0].split(":")[1]}\r\nContent-Transfer-Encoding: base64\r\n\r\n${base64_data[1].split(",")[1]}${
     REQUEST_BODY_DELIM.CLOSE_DELIM
   }`;
 }
@@ -55,7 +56,7 @@ function getBase64Representation(imageBlob) {
   return new Promise((resolve, reject) => {
     let reader = new FileReader();
     reader.onloadend = function () {
-      resolve(reader.result.split(";")[1].split(",")[1]);
+      resolve(reader.result);
     };
     reader.readAsDataURL(imageBlob);
   });
@@ -80,31 +81,38 @@ function buildRequestHeader(requestBody) {
 }
 
 function sendGoogleApiRequest(requestHeader) {
-  console.log(requestHeader);
   window.fetch(getFullUploadRequestURI(), requestHeader).then((response) => {
     console.log(response);
   });
 }
 
-export function startUploading(accessToken, listOfImages = []) {
+function buildMetaDataString(metadata, pageSource){
+  metadata = JSON.parse(metadata);
+  return `Page Source: ${ pageSource }\nHeight: ${ metadata.height }px\nWidth: ${ metadata.width }px`;
+}
+
+function getTodaysDate(){
+  const today = new Date();
+  let month = (today.getMonth()+1).toString();
+  month = month > "9" ? month : "0"+month;
+  let date = today.getDate().toString();
+  date = date > "9" ? date : "0"+date;
+  return `${today.getFullYear()}-${month}-${date}_`;
+}
+
+export function startUploading(accessToken, listOfImages, pageSource) {
   access_token = accessToken;
 
-  let url1 =
-    "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png";
-  let url2 =
-    "https://png.pngtree.com/element_our/png/20180928/beautiful-hologram-water-color-frame-png_119551.jpg";
-
-  for (let url of [url1, url2]) {
-    const imageType = "image/png";
+  for (let image of listOfImages) {
     const metaData = {
-      name: "franco's test",
-      description: "this is a test description",
+      name: getTodaysDate()+image.alt,
+      description: buildMetaDataString(image.metadata, pageSource),
     };
-    getImageBlob(url)
+    getImageBlob(image.src)
       .then(getBase64Representation)
       .then((base64) => {
         return new Promise((resolve) =>
-          resolve(buildRequestBody(base64, metaData, imageType))
+          resolve(buildRequestBody(base64, metaData))
         );
       })
       .then(buildRequestHeader)
