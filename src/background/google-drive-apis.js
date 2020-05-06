@@ -100,7 +100,7 @@ function getTodaysDate(){
   return `${today.getFullYear()}-${month}-${date}_`;
 }
 
-export function startUploading(accessToken, listOfImages, pageSource) {
+export function startUploading(accessToken, listOfImages, pageSource, folderId) {
   access_token = accessToken;
 
   for (let image of listOfImages) {

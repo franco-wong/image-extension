@@ -11,14 +11,15 @@ const accessToken = {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.command) {
     case "UPLOAD_IMAGES":
-      // findAndCreateFolder(accessToken.code);
-      // get chrome tab url to get the source of the image
-      chrome.tabs.getSelected(null, function(tab){
-        startUploading(accessToken.code,request.uploadImages,tab.url);
-      });
-      // TODO: Hook Google API calls from here
-      // For now only the src string is being sent, fake the metadata,
-      // this will be addressed in a subsequent PR
+      // find and create a "Image Extension" folder if it doesn't current exist
+      findAndCreateFolder(accessToken.code)
+        .then(folderId => {
+          // get chrome tab url to get the source of the image
+          chrome.tabs.getSelected(null, function(tab){
+            startUploading(accessToken.code, request.uploadImages, tab.url, folderId);
+          });
+        });
+
       console.log(request.uploadImages);
       sendResponse(true);
       break;
@@ -56,7 +57,7 @@ function launchWebAuthFlow() {
       "422708725016-0hb05pfhev84hbd4nldvfkfrlbhmgmql.apps.googleusercontent.com",
     redirect_uri: chrome.identity.getRedirectURL(),
     response_type: "token",
-    scope: "https://www.googleapis.com/auth/drive.file",
+    scope: "https://www.googleapis.com/auth/drive",
   };
   const queryParams = new URLSearchParams(Object.entries(params)).toString();
 
