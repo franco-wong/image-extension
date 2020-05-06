@@ -107,12 +107,13 @@ export function startUploading(accessToken, listOfImages, pageSource, folderId) 
     const metaData = {
       name: getTodaysDate()+image.alt,
       description: buildMetaDataString(image.metadata, pageSource),
+      parents:[folderId]
     };
     getImageBlob(image.src)
       .then(getBase64Representation)
       .then((base64) => {
         return new Promise((resolve) =>
-          resolve(buildRequestBody(base64, metaData))
+          resolve(buildRequestBody(base64, metaData, folderId))
         );
       })
       .then(buildRequestHeader)
