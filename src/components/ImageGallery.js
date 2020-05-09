@@ -58,6 +58,11 @@ export default class ImageGallery {
       tileImage.setAttribute("src", image.src);
       tileImage.setAttribute("alt", "");
       tileImage.dataset.index = index;
+      tileImage.dataset.metadata = JSON.stringify({
+        alt:image.alt,
+        width:image.width,
+        height:image.height
+      });
       tileImage.classList.add("tile");
       tileImage.addEventListener("click", this.onImageSelected.bind(this));
       // Collect list of broken images / successfully loaded ones
@@ -104,7 +109,10 @@ export default class ImageGallery {
     const uploadImages = [];
 
     for (const [_, image] of this.selectedImages) {
-      uploadImages.push(image.src);
+      uploadImages.push({
+        src: image.src,
+        metadata: image.dataset.metadata
+      });
     }
 
     console.log(uploadImages);
