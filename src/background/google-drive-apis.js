@@ -93,17 +93,18 @@ function buildMetaDataString(metadata, pageSource){
 
 function getTodaysDate(){
   const today = new Date();
-  let month = (today.getMonth()+1).toString();
-  month = month > "9" ? month : "0"+month;
-  let date = today.getDate().toString();
-  date = date > "9" ? date : "0"+date;
+  let month = (today.getMonth()+1);
+  month = month > 9 ? month : "0"+month.toString();
+  let date = today.getDate();
+  date = date > 9 ? date : "0"+date.toString();
   return `${today.getFullYear()}-${month}-${date}_`;
 }
 
 export function startUploading(accessToken, listOfImages, pageSource, folderId) {
   access_token = accessToken;
-
+  let imagePromisify = [];
   for (let image of listOfImages) {
+    imagePromisify.push();
     const metaData = {
       name: getTodaysDate()+image.alt,
       description: buildMetaDataString(image.metadata, pageSource),
@@ -111,11 +112,7 @@ export function startUploading(accessToken, listOfImages, pageSource, folderId) 
     };
     getImageBlob(image.src)
       .then(getBase64Representation)
-      .then((base64) => {
-        return new Promise((resolve) =>
-          resolve(buildRequestBody(base64, metaData, folderId))
-        );
-      })
+      .then((base64) => buildRequestBody(base64, metaData, folderId))
       .then(buildRequestHeader)
       .then(sendGoogleApiRequest);
   }
