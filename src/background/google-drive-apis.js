@@ -53,7 +53,7 @@ function buildRequestBody(base64, metaData) {
 }
 
 function getBase64Representation(imageBlob) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     let reader = new FileReader();
     reader.onloadend = function () {
       resolve(reader.result);
@@ -81,7 +81,7 @@ function buildRequestHeader(requestBody) {
 }
 
 function sendGoogleApiRequest(requestHeader) {
-  window.fetch(getFullUploadRequestURI(), requestHeader).then((response) => {
+  return window.fetch(getFullUploadRequestURI(), requestHeader).then((response) => {
     console.log(response);
   });
 }
@@ -104,16 +104,17 @@ export function startUploading(accessToken, listOfImages, pageSource, folderId) 
   access_token = accessToken;
   let imagePromisify = [];
   for (let image of listOfImages) {
-    imagePromisify.push();
     const metaData = {
       name: getTodaysDate()+image.alt,
       description: buildMetaDataString(image.metadata, pageSource),
       parents:[folderId]
     };
-    getImageBlob(image.src)
-      .then(getBase64Representation)
-      .then((base64) => buildRequestBody(base64, metaData, folderId))
-      .then(buildRequestHeader)
-      .then(sendGoogleApiRequest);
+
+    imagePromisify.push(getImageBlob(image.src)
+    .then(getBase64Representation)
+    .then((base64) => buildRequestBody(base64, metaData, folderId))
+    .then(buildRequestHeader)
+    .then(sendGoogleApiRequest));
   }
+  return imagePromisify;
 }

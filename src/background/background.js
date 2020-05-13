@@ -8,6 +8,7 @@ const accessToken = {
   scope: "",
 };
 
+let imagePromisify;
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.command) {
     case "UPLOAD_IMAGES":
@@ -16,10 +17,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         .then(folderId => {
           // get chrome tab url to get the source of the image
           chrome.tabs.getSelected(null, function(tab){
-            startUploading(accessToken.code, request.uploadImages, tab.url, folderId);
+            imagePromisify = startUploading(accessToken.code, request.uploadImages, tab.url, folderId);
+            Promise.allSettled(imagePromisify)
+              .then(values => console.log(values));
           });
         });
-
+      
       console.log(request.uploadImages);
       sendResponse(true);
       break;
