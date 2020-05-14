@@ -33,8 +33,7 @@ export default class ImageGallery {
 
   init(results) {
     this.loadImagesOntoGallery(results);
-
-    console.log(results);
+    this.imagesLoaded = 0;
 
     // Set up event listener for sending / uploading photos to drive
     this.shadowDOMContainer.shadowRoot
@@ -43,6 +42,7 @@ export default class ImageGallery {
   }
 
   loadImagesOntoGallery(images) {
+    console.log("loaded images");
     const [
       showcase,
       loader,
@@ -73,7 +73,9 @@ export default class ImageGallery {
     Promise.allSettled(pImages)
       .then((results) => results.filter(({ status }) => status === "fulfilled"))
       .then((loadedImages) => {
-        loader.parentNode.removeChild(loader); // Loader suicides
+        if(loader){
+          loader.parentNode.removeChild(loader); // Loader suicides
+        }
 
         for (const { value: image } of loadedImages) {
           const layer = document.createElement("div"); // Add inner div as a layer over the image
@@ -81,11 +83,11 @@ export default class ImageGallery {
           layer.appendChild(image);
           showcase.appendChild(layer); // Tile added to gallery
         }
-
+        this.imagesLoaded+=loadedImages.length;
         updateLabel(
           this.shadowDOMContainer.container,
           "total-images",
-          loadedImages.length
+          this.imagesLoaded
         );
       });
   }
