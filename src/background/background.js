@@ -15,17 +15,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       // find and create a "Image Extension" folder if it doesn't current exist
       findAndCreateFolder(accessToken.code)
         .then(folderId => {
-          // get chrome tab url to get the source of the image
-          chrome.tabs.getSelected(null, function(tab){
-            imagePromisify = startUploading(accessToken.code, request.uploadImages, tab.url, folderId);
-            Promise.allSettled(imagePromisify)
-              .then(values => console.log(values));
+          imagePromisify = startUploading(accessToken.code, request.uploadImages, sender.tab.url, sender.tab.title, folderId);
+
+          Promise.allSettled(imagePromisify)
+            .then(()=>{
+              sendResponse("All images has been uploaded!");
           });
         });
-      
       console.log(request.uploadImages);
-      sendResponse(true);
-      break;
+      return true;
   }
 });
 

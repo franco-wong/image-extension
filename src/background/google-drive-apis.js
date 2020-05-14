@@ -100,13 +100,13 @@ function getTodaysDate(){
   return `${today.getFullYear()}-${month}-${date}_`;
 }
 
-export function startUploading(accessToken, listOfImages, pageSource, folderId) {
+export function startUploading(accessToken, listOfImages, pageSourceURL, pageSourceTitle, folderId) {
   access_token = accessToken;
   let imagePromisify = [];
   for (let image of listOfImages) {
     const metaData = {
-      name: getTodaysDate()+image.alt,
-      description: buildMetaDataString(image.metadata, pageSource),
+      name: getTodaysDate()+pageSourceTitle,
+      description: buildMetaDataString(image.metadata, pageSourceURL),
       parents:[folderId]
     };
 
