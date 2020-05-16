@@ -53,7 +53,7 @@ function buildRequestBody(base64, metaData) {
 }
 
 function getBase64Representation(imageBlob) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     let reader = new FileReader();
     reader.onloadend = function () {
       resolve(reader.result);
@@ -81,9 +81,11 @@ function buildRequestHeader(requestBody) {
 }
 
 function sendGoogleApiRequest(requestHeader) {
-  window.fetch(getFullUploadRequestURI(), requestHeader).then((response) => {
-    console.log(response);
-  });
+  return window
+    .fetch(getFullUploadRequestURI(), requestHeader)
+    .then((response) => {
+      console.log(response);
+    });
 }
 
 function buildMetaDataString(metadata, pageSource) {
@@ -93,31 +95,38 @@ function buildMetaDataString(metadata, pageSource) {
 
 function getTodaysDate() {
   const today = new Date();
-  let month = (today.getMonth() + 1).toString();
-  month = month > "9" ? month : "0" + month;
-  let date = today.getDate().toString();
-  date = date > "9" ? date : "0" + date;
+  let month = today.getMonth() + 1;
+  month = month > 9 ? month : "0" + month.toString();
+  let date = today.getDate();
+  date = date > 9 ? date : "0" + date.toString();
   return `${today.getFullYear()}-${month}-${date}_`;
 }
 
 export function startUploading(
   accessToken,
   listOfImages,
-  pageSource,
+  pageSourceURL,
+  pageSourceTitle,
   folderId
 ) {
+  let imagePromisify = [];
   access_token = accessToken;
 
   for (let image of listOfImages) {
     const metaData = {
-      name: getTodaysDate() + image.alt,
-      description: buildMetaDataString(image.metadata, pageSource),
+      name: getTodaysDate() + pageSourceTitle,
+      description: buildMetaDataString(image.metadata, pageSourceURL),
       parents: [folderId],
     };
-    getImageBlob(image.src)
-      .then(getBase64Representation)
-      .then((base64) => buildRequestBody(base64, metaData, folderId))
-      .then(buildRequestHeader)
-      .then(sendGoogleApiRequest);
+
+    imagePromisify.push(
+      getImageBlob(image.src)
+        .then(getBase64Representation)
+        .then((base64) => buildRequestBody(base64, metaData, folderId))
+        .then(buildRequestHeader)
+        .then(sendGoogleApiRequest)
+    );
   }
+
+  return imagePromisify;
 }

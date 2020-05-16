@@ -120,8 +120,8 @@ export default class ImageGallery {
         command: "UPLOAD_IMAGES",
         uploadImages,
       },
-      () => {
-        console.log("images received...");
+      (value) => {
+        console.log(value);
       }
     );
   }

@@ -20,7 +20,8 @@ const webpack = {
         new CopyPlugin([
             { from: "./src/manifest.json", to: "./" },
             { from: "./html/", to: "./html/" },
-            { from: "./css/", to: "./css/" }
+            { from: "./css/", to: "./css/" },
+            { from: "./images/", to: "./images/"}
         ]),
         new CleanWebpackPlugin()
     ] 
