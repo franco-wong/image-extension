@@ -87,7 +87,11 @@
 }
 
 .tile--selected {
-  background-color: rgb(24, 24, 24) !important;
+  background-image: url('https://i.ibb.co/7WCXTfx/checkmark.png') !important;
+  background-size: 30%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: rgb(24,24,24);
 }
 
 .tile--selected img {

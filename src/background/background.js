@@ -8,21 +8,22 @@ const accessToken = {
   scope: "",
 };
 
+let imagePromisify;
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.command) {
     case "UPLOAD_IMAGES":
       // find and create a "Image Extension" folder if it doesn't current exist
       findAndCreateFolder(accessToken.code)
         .then(folderId => {
-          // get chrome tab url to get the source of the image
-          chrome.tabs.getSelected(null, function(tab){
-            startUploading(accessToken.code, request.uploadImages, tab.url, folderId);
+          imagePromisify = startUploading(accessToken.code, request.uploadImages, sender.tab.url, sender.tab.title, folderId);
+
+          Promise.allSettled(imagePromisify)
+            .then(()=>{
+              sendResponse("All images has been uploaded!");
           });
         });
-
       console.log(request.uploadImages);
-      sendResponse(true);
-      break;
+      return true;
   }
 });
 
