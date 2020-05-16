@@ -69,7 +69,7 @@ export default class ImageGallery {
 
   init() {
     const results = ImgMetaDataAPI.getImgMetaData();
-    this.loadImagesOntoGallery(results);
+    this.loadImagesOntoGallery(results, true);
 
     // Set up event listener for sending / uploading photos to drive
     this.shadowRoot
@@ -85,7 +85,7 @@ export default class ImageGallery {
   }
 
   generateImageTiles(images) {
-    let pImages = [];
+    let retImages = [];
 
     for (let index = 0; index < images.length; index++) {
       const image = images[index];
@@ -107,11 +107,37 @@ export default class ImageGallery {
       tileImage.classList.add("tile");
       tileImage.addEventListener("click", this.onImageSelected.bind(this));
 
-      // Collect list of broken images / successfully loaded ones
-      pImages.push(promisifyImageLoad(tileImage));
+      retImages.push(tileImage);
     }
 
-    return pImages;
+    return retImages;
+  }
+
+  addImagesToGallery(loadedImages) {
+    const [showcase, loader] = this.shadowDocument.querySelectorAll(
+      ".gallery__showcase, .gallery__loader"
+    );
+
+    // Remove loader after initial page and images load
+    if (this.showLoader) {
+      loader.parentNode.removeChild(loader); // Loader suicides
+      this.showLoader = false;
+    }
+
+    for (const image of loadedImages) {
+      // Store images in a Map for quick storage & retrievals to avoid storing duplicate image links
+      this.galleryImageMap.set(image.src, image);
+
+      // Add inner div as a layer over the image
+      const layer = document.createElement("div");
+      layer.classList.add("tile__layer");
+      layer.appendChild(image);
+
+      // Tile added to gallery
+      showcase.appendChild(layer);
+    }
+
+    updateLabel(this.shadowDocument, "total-images", this.galleryImageMap.size);
   }
 
   /**
@@ -120,40 +146,23 @@ export default class ImageGallery {
   loadImagesOntoGallery(images) {
     if (!(images.length > 0)) return;
 
-    const pImages = this.generateImageTiles(images);
-    const [showcase, loader] = this.shadowDocument.querySelectorAll(
-      ".gallery__showcase, .gallery__loader"
-    );
+    // Collect list of broken images / successfully loaded ones
+    const pImages = this.generateImageTiles(images).map((img) => {
+      return promisifyImageLoad(img);
+    });
 
     // Inject the successfully loaded images onto the gallery, dismiss broken images
     Promise.allSettled(pImages)
-      .then((results) => results.filter(({ status }) => status === "fulfilled"))
-      .then((loadedImages) => {
-        // Remove loader after initial page and images load
-        if (this.showLoader) {
-          loader.parentNode.removeChild(loader); // Loader suicides
-          this.showLoader = false;
-        }
+      .then((results) => {
+        return results.reduce((accum, image) => {
+          if (image.status === "fulfilled") {
+            accum.push(image.value);
+          }
 
-        for (const { value: image } of loadedImages) {
-          // Store images in a Map for quick storage & retrievals to avoid storing duplicate image links
-          this.galleryImageMap.set(image.src, image);
-
-          // Add inner div as a layer over the image
-          const layer = document.createElement("div");
-          layer.classList.add("tile__layer");
-          layer.appendChild(image);
-
-          // Tile added to gallery
-          showcase.appendChild(layer);
-        }
-
-        updateLabel(
-          this.shadowDocument,
-          "total-images",
-          this.galleryImageMap.size
-        );
-      });
+          return accum;
+        }, []);
+      })
+      .then((filteredResults) => this.addImagesToGallery(filteredResults));
   }
 
   onImageSelected(e) {
