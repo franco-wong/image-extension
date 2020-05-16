@@ -1,4 +1,5 @@
 import ImageGallery from "../components/ImageGallery";
+import ShadowDOMContainer from "../components/ShadowDOMContainer";
 
 const SidebarStyles = {
   height: "100%",
@@ -14,9 +15,9 @@ const SidebarStyles = {
  * Sidebar component with built-in logic and styles
  */
 export default class Sidebar {
-  constructor(shadowDOMContainer) {
-    this.shadowDOMContainer = shadowDOMContainer;
-    this.imageGallery = new ImageGallery(shadowDOMContainer);
+  constructor() {
+    this.shadowDOMContainer = new ShadowDOMContainer();
+    this.imageGallery = null;
     this.isShown = false;
     this.inActiveElement = this.addInActiveBgElement();
   }
@@ -24,9 +25,10 @@ export default class Sidebar {
   /**
    * Initialize the markup, styles and other child components
    */
-  async init(results) {
+  async init() {
     await this.shadowDOMContainer.init(SidebarStyles);
-    this.imageGallery.init(results);
+    this.imageGallery = new ImageGallery(this.shadowDOMContainer);
+    this.imageGallery.init();
   }
 
   /**

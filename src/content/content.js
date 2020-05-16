@@ -1,15 +1,11 @@
-import { ImgMetaDataAPI } from "../utility/ImgMetaDataAPI";
 import { inlineCSS } from "../utility/helper";
 import Sidebar from "../components/Sidebar";
-import ShadowDOMContainer from "../components/ShadowDOMContainer";
 
 HTMLDivElement.prototype.css = inlineCSS;
 
-const results = ImgMetaDataAPI.getImgMetaData();
-const shadowDOMContainer = new ShadowDOMContainer();
-const sidebar = new Sidebar(shadowDOMContainer);
+const sidebar = new Sidebar();
 
-sidebar.init(results).then(() => {
+sidebar.init().then(() => {
   chrome.runtime.onMessage.addListener(onMessageListener);
 });
 

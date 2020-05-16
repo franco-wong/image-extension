@@ -1,15 +1,17 @@
 import { promisifyImageLoad, updateLabel } from "../utility/helper";
+import { ImgMetaDataAPI, ImgMetaData } from "../utility/ImgMetaDataAPI";
 
 export default class ImageGallery {
   constructor(shadowDOMContainer) {
-    this.shadowDOMContainer = shadowDOMContainer;
+    this.shadowDocument = shadowDOMContainer.container;
+    this.shadowRoot = shadowDOMContainer.shadowRoot;
+    this.showLoader = true;
+    this.galleryImageMap = new Map();
 
     // Defined here to grab the correct invocation context (this) when invoked from inside the proxy
     const updateSidebar = (size) => {
-      this.shadowDOMContainer.container.querySelector("#send-btn").disabled = !(
-        size > 0
-      );
-      updateLabel(this.shadowDOMContainer.container, "selected-images", size);
+      this.shadowDocument.querySelector("#send-btn").disabled = !(size > 0);
+      updateLabel(this.shadowDocument, "selected-images", size);
     };
 
     // Upload button is dependent on the amount of images user has selected
@@ -29,61 +31,127 @@ export default class ImageGallery {
         return typeof value === "function" ? value.bind(target) : value;
       },
     });
+
+    const handleMutatedNodes = (node) => {
+      const name = node.tagName.toLowerCase();
+      let results = null;
+
+      switch (name) {
+        case "img":
+          results = [
+            new ImgMetaData(node.src, node.alt, node.width, node.height),
+          ];
+          break;
+        case "div":
+          results = ImgMetaDataAPI.getImgMetaData(node);
+          break;
+      }
+
+      if (results && results.length > 0) {
+        results = results.filter((image) => {
+          if (this.galleryImageMap.has(image.src)) {
+            return false;
+          }
+          return true;
+        });
+        this.loadImagesOntoGallery(results);
+      }
+    };
+
+    this.observer = new MutationObserver((mutationList) => {
+      for (let mutation of mutationList) {
+        if (mutation.type === "childList") {
+          [].forEach.call(mutation.target.children, handleMutatedNodes);
+        }
+      }
+    });
   }
 
-  init(results) {
+  init() {
+    const results = ImgMetaDataAPI.getImgMetaData();
     this.loadImagesOntoGallery(results);
 
     // Set up event listener for sending / uploading photos to drive
-    this.shadowDOMContainer.shadowRoot
+    this.shadowRoot
       .querySelector("#send-btn")
       .addEventListener("click", () => this.uploadPhotos());
+
+    this.observer.observe(document.body, {
+      characterData: false,
+      childList: true,
+      subtree: true,
+      attributes: false,
+    });
   }
 
-  loadImagesOntoGallery(images) {
-    const [
-      showcase,
-      loader,
-    ] = this.shadowDOMContainer.container.querySelectorAll(
-      ".gallery__showcase, .gallery__loader"
-    );
+  generateImageTiles(images) {
     let pImages = [];
 
-    // Make each image unique, add listeners to be used to later to shake off broken images
     for (let index = 0; index < images.length; index++) {
       const image = images[index];
       const tileImage = document.createElement("img");
+
+      // Assign the image src to the newly created tags
       tileImage.setAttribute("src", image.src);
-      tileImage.setAttribute("alt", "");
+      tileImage.setAttribute("alt", image.alt);
+
+      // Add informative datasets to the tag
       tileImage.dataset.index = index;
       tileImage.dataset.metadata = JSON.stringify({
-        alt:image.alt,
-        width:image.width,
-        height:image.height
+        alt: image.alt,
+        width: image.width,
+        height: image.height,
       });
+
+      // Add overlay tile classes to darken the background of selected images
       tileImage.classList.add("tile");
       tileImage.addEventListener("click", this.onImageSelected.bind(this));
+
       // Collect list of broken images / successfully loaded ones
       pImages.push(promisifyImageLoad(tileImage));
     }
 
-    // Inject the loaded images onto the gallery, dismiss broken images
+    return pImages;
+  }
+
+  /**
+   * Generate image tiles for the gallery while removing broken src links
+   */
+  loadImagesOntoGallery(images) {
+    if (!(images.length > 0)) return;
+
+    const pImages = this.generateImageTiles(images);
+    const [showcase, loader] = this.shadowDocument.querySelectorAll(
+      ".gallery__showcase, .gallery__loader"
+    );
+
+    // Inject the successfully loaded images onto the gallery, dismiss broken images
     Promise.allSettled(pImages)
       .then((results) => results.filter(({ status }) => status === "fulfilled"))
       .then((loadedImages) => {
-        loader.parentNode.removeChild(loader); // Loader suicides
+        // Remove loader after initial page and images load
+        if (this.showLoader) {
+          loader.parentNode.removeChild(loader); // Loader suicides
+          this.showLoader = false;
+        }
 
         for (const { value: image } of loadedImages) {
-          const layer = document.createElement("div"); // Add inner div as a layer over the image
+          // Store images in a Map for quick storage & retrievals to avoid storing duplicate image links
+          this.galleryImageMap.set(image.src, image);
+
+          // Add inner div as a layer over the image
+          const layer = document.createElement("div");
           layer.classList.add("tile__layer");
           layer.appendChild(image);
-          showcase.appendChild(layer); // Tile added to gallery
+
+          // Tile added to gallery
+          showcase.appendChild(layer);
         }
 
         updateLabel(
-          this.shadowDOMContainer.container,
+          this.shadowDocument,
           "total-images",
-          loadedImages.length
+          this.galleryImageMap.size
         );
       });
   }
@@ -109,7 +177,7 @@ export default class ImageGallery {
     for (const [_, image] of this.selectedImages) {
       uploadImages.push({
         src: image.src,
-        metadata: image.dataset.metadata
+        metadata: image.dataset.metadata,
       });
     }
 
