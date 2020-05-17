@@ -47,15 +47,19 @@ export default class ImageGallery {
           break;
       }
 
-      if (results && results.length > 0) {
-        results = results.filter((image) => {
-          if (this.galleryImageMap.has(image.src)) {
-            return false;
-          }
-          return true;
-        });
-        this.loadImagesOntoGallery(results);
-      }
+      if (!results || !results.length) return;
+
+      results = results.reduce((accum, image) => {
+        if (this.galleryImageMap.has(image.src)) {
+          return accum;
+        }
+
+        this.galleryImageMap.set(image.src, image);
+        accum.push(image);
+        return accum;
+      }, []);
+
+      this.loadImagesOntoGallery(results);
     };
 
     this.observer = new MutationObserver((mutationList) => {
@@ -68,8 +72,14 @@ export default class ImageGallery {
   }
 
   init() {
-    const results = ImgMetaDataAPI.getImgMetaData();
-    this.loadImagesOntoGallery(results, true);
+    const imageResults = ImgMetaDataAPI.getImgMetaData();
+
+    // Store images in a Map for quick storage & retrievals to avoid storing duplicate image links
+    for (const image of imageResults) {
+      this.galleryImageMap.set(image.src, image);
+    }
+
+    this.loadImagesOntoGallery(imageResults);
 
     // Set up event listener for sending / uploading photos to drive
     this.shadowRoot
@@ -85,7 +95,7 @@ export default class ImageGallery {
   }
 
   generateImageTiles(images) {
-    let retImages = [];
+    let pImages = [];
 
     for (let index = 0; index < images.length; index++) {
       const image = images[index];
@@ -107,10 +117,10 @@ export default class ImageGallery {
       tileImage.classList.add("tile");
       tileImage.addEventListener("click", this.onImageSelected.bind(this));
 
-      retImages.push(tileImage);
+      pImages.push(promisifyImageLoad(tileImage));
     }
 
-    return retImages;
+    return pImages;
   }
 
   addImagesToGallery(loadedImages) {
@@ -125,9 +135,6 @@ export default class ImageGallery {
     }
 
     for (const image of loadedImages) {
-      // Store images in a Map for quick storage & retrievals to avoid storing duplicate image links
-      this.galleryImageMap.set(image.src, image);
-
       // Add inner div as a layer over the image
       const layer = document.createElement("div");
       layer.classList.add("tile__layer");
@@ -147,12 +154,10 @@ export default class ImageGallery {
     if (!(images.length > 0)) return;
 
     // Collect list of broken images / successfully loaded ones
-    const pImages = this.generateImageTiles(images).map((img) => {
-      return promisifyImageLoad(img);
-    });
+    const pTileImages = this.generateImageTiles(images);
 
     // Inject the successfully loaded images onto the gallery, dismiss broken images
-    Promise.allSettled(pImages)
+    Promise.allSettled(pTileImages)
       .then((results) => {
         return results.reduce((accum, image) => {
           if (image.status === "fulfilled") {
