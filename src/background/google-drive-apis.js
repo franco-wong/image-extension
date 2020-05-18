@@ -45,11 +45,11 @@ function buildRequestBody(base64, metaData) {
     REQUEST_BODY_DELIM.DELIMITER
   }Content-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(
     metaData
-  )}\r\n${
-    REQUEST_BODY_DELIM.DELIMITER
-  }Content-Type: ${base64_data[0].split(":")[1]}\r\nContent-Transfer-Encoding: base64\r\n\r\n${base64_data[1].split(",")[1]}${
-    REQUEST_BODY_DELIM.CLOSE_DELIM
-  }`;
+  )}\r\n${REQUEST_BODY_DELIM.DELIMITER}Content-Type: ${
+    base64_data[0].split(":")[1]
+  }\r\nContent-Transfer-Encoding: base64\r\n\r\n${
+    base64_data[1].split(",")[1]
+  }${REQUEST_BODY_DELIM.CLOSE_DELIM}`;
 }
 
 function getBase64Representation(imageBlob) {
@@ -81,40 +81,52 @@ function buildRequestHeader(requestBody) {
 }
 
 function sendGoogleApiRequest(requestHeader) {
-  return window.fetch(getFullUploadRequestURI(), requestHeader).then((response) => {
-    console.log(response);
-  });
+  return window
+    .fetch(getFullUploadRequestURI(), requestHeader)
+    .then((response) => {
+      console.log(response);
+    });
 }
 
-function buildMetaDataString(metadata, pageSource){
+function buildMetaDataString(metadata, pageSource) {
   metadata = JSON.parse(metadata);
-  return `Page Source: ${ pageSource }\nHeight: ${ metadata.height }px\nWidth: ${ metadata.width }px`;
+  return `Page Source: ${pageSource}\nHeight: ${metadata.height}px\nWidth: ${metadata.width}px`;
 }
 
-function getTodaysDate(){
+function getTodaysDate() {
   const today = new Date();
-  let month = (today.getMonth()+1);
-  month = month > 9 ? month : "0"+month.toString();
+  let month = today.getMonth() + 1;
+  month = month > 9 ? month : "0" + month.toString();
   let date = today.getDate();
-  date = date > 9 ? date : "0"+date.toString();
+  date = date > 9 ? date : "0" + date.toString();
   return `${today.getFullYear()}-${month}-${date}_`;
 }
 
-export function startUploading(accessToken, listOfImages, pageSourceURL, pageSourceTitle, folderId) {
-  access_token = accessToken;
+export function startUploading(
+  accessToken,
+  listOfImages,
+  pageSourceURL,
+  pageSourceTitle,
+  folderId
+) {
   let imagePromisify = [];
+  access_token = accessToken;
+
   for (let image of listOfImages) {
     const metaData = {
-      name: getTodaysDate()+pageSourceTitle,
+      name: getTodaysDate() + pageSourceTitle,
       description: buildMetaDataString(image.metadata, pageSourceURL),
-      parents:[folderId]
+      parents: [folderId],
     };
 
-    imagePromisify.push(getImageBlob(image.src)
-    .then(getBase64Representation)
-    .then((base64) => buildRequestBody(base64, metaData, folderId))
-    .then(buildRequestHeader)
-    .then(sendGoogleApiRequest));
+    imagePromisify.push(
+      getImageBlob(image.src)
+        .then(getBase64Representation)
+        .then((base64) => buildRequestBody(base64, metaData, folderId))
+        .then(buildRequestHeader)
+        .then(sendGoogleApiRequest)
+    );
   }
+
   return imagePromisify;
 }

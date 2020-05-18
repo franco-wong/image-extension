@@ -32,63 +32,61 @@ function getAuthBearer() {
   return `Bearer ${access_token}`;
 }
 
-function getRequestURI(list){
-  if(list){
+function getRequestURI(list) {
+  if (list) {
     return `${REQUEST_URI}?q=mimeType%3D'application%2Fvnd.google-apps.folder'`; //?q=mimeType%3D'application%2Fvnd.google-apps.folder'
   }
   return REQUEST_URI;
 }
 
-function getRequestHeader(){
+function getRequestHeader() {
   return {
-    method:"GET",
-    headers:{
+    method: "GET",
+    headers: {
       Authorization: getAuthBearer(),
-      Accept: 'application/json'
-    }
-  };
-}
-
-function getCreateRequestHeader(){
-  return {
-    method:"POST",
-    headers:{
-      Authorization: getAuthBearer(),
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
+      Accept: "application/json",
     },
-    body:JSON.stringify({
-      "mimeType": "application/vnd.google-apps.folder",
-      "name": "Image Extension"
-    })
   };
 }
 
-function sendListRequest(){
-  return window.fetch(getRequestURI(true), getRequestHeader());
+function getCreateRequestHeader() {
+  return {
+    method: "POST",
+    headers: {
+      Authorization: getAuthBearer(),
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      mimeType: "application/vnd.google-apps.folder",
+      name: "Image Extension",
+    }),
+  };
 }
 
-function createFolderRequest(){
-  window.fetch(REQUEST_URI,getCreateRequestHeader())
-    .then(response => response.json())
-    .then(json => {
-      return json.id;
-    });
+function sendListRequest() {
+  return fetch(getRequestURI(true), getRequestHeader());
 }
 
-export function findAndCreateFolder(accessToken){
+function createFolderRequest() {
+  fetch(REQUEST_URI, getCreateRequestHeader())
+    .then((response) => response.json())
+    .then((json) => json.id);
+}
+
+export function findAndCreateFolder(accessToken) {
   access_token = accessToken;
   return sendListRequest()
-    .then(response => response.json())
-    .then(json => {
-      if(json.files.length !== 0 && json.files[0].name === "Image Extension"){
+    .then((response) => response.json())
+    .then((json) => {
+      if (json.files.length !== 0 && json.files[0].name === "Image Extension") {
         return json.files[0].id;
       }
     })
-    .then(result => {
-      if(result){
+    .then((result) => {
+      if (result) {
         return result;
       }
       return createFolderRequest();
-  });
+    });
 }

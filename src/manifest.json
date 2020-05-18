@@ -1,28 +1,23 @@
 {
-    "manifest_version": 2,
-    "name": "franco_extension",
-    "version": "1.0.0",
-    "description": "TBD",
-    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
-    "browser_action": {
-      "default_title": "Test",
-      "default_popup": ""
-    },
-    "background": {
-      "scripts": ["background.js"]
-    },
-    "content_scripts": [
-      {
-        "matches": ["http://*/*", "https://*/*","file:///*/*"],
-        "run_at": "document_idle",
-        "js": ["content.js"]
-      }
-    ],
-    "web_accessible_resources": [
-      "html/*.html",
-      "css/*.css"
-    ],
-    "permissions": [
-      "identity"
-    ]
+  "manifest_version": 2,
+  "name": "franco_extension",
+  "version": "1.0.0",
+  "description": "TBD",
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "browser_action": {
+    "default_title": "Test",
+    "default_popup": ""
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "file:///*/*"],
+      "run_at": "document_idle",
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": ["html/*.html", "css/*.css"],
+  "permissions": ["identity"]
 }
