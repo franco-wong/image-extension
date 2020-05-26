@@ -14,8 +14,8 @@ import HelloWorld from "./HelloWorld.vue";
 export default {
   name: "AppModal",
   components: {
-    HelloWorld,
-  },
+    HelloWorld
+  }
 };
 </script>
 
@@ -23,20 +23,10 @@ export default {
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
-/* 
+
 #app-modal {
-  position: fixed;
-  background-color: gray;
-  color: white;
-  z-index: 9001;
-  height: 800px;
-  width: 800px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-} */
+}
 </style>
