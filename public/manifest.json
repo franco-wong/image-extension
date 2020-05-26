@@ -9,13 +9,13 @@
     "default_popup": ""
   },
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["js/background.js"]
   },
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*", "file:///*/*"],
       "run_at": "document_idle",
-      "js": ["content.js"]
+      "js": ["js/content.js"]
     }
   ],
   "web_accessible_resources": ["html/*.html", "css/*.css"],

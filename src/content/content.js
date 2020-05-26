@@ -21,7 +21,7 @@
 // }
 
 import Vue from "vue";
-import App from "./../App.vue";
+import App from "./App.vue";
 
 const root = document.createElement("div");
 root.setAttribute("id", "gd-sync-image-upload-app");
