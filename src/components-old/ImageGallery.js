@@ -1,5 +1,5 @@
-import { promisifyImageLoad, updateLabel } from "../utility/helper";
-import { ImgMetaDataAPI, ImgMetaData } from "../utility/ImgMetaDataAPI";
+import { promisifyImageLoad, updateLabel } from "../../utility/helper";
+import { ImgMetaDataAPI, ImgMetaData } from "../../utility/ImgMetaDataAPI";
 
 export default class ImageGallery {
   constructor(shadowDOMContainer) {
