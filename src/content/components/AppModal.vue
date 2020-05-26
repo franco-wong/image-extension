@@ -1,15 +1,15 @@
 <template>
-  <div id="app">
+  <div id="app-modal">
     <!-- <img alt="Vue logo" src="./assets/logo.png" /> -->
     <HelloWorld msg="Welcome to Your Vue.js App for web extension" />
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import HelloWorld from "./HelloWorld.vue";
 
 export default {
-  name: "App",
+  name: "AppModal",
   components: {
     HelloWorld,
   },
@@ -17,7 +17,7 @@ export default {
 </script>
 
 <style>
-#app {
+#app-modal {
   position: fixed;
   background-color: gray;
   color: white;
