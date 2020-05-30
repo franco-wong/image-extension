@@ -188,7 +188,7 @@ export default class ImageGallery {
   uploadPhotos() {
     const uploadImages = [];
 
-    for (const [_, image] of this.selectedImages) {
+    for (const [, image] of this.selectedImages) {
       uploadImages.push({
         src: image.src,
         metadata: image.dataset.metadata,
