@@ -1,5 +1,5 @@
-import { promisifyImageLoad, updateLabel } from "../utility/helper";
-import { ImgMetaDataAPI, ImgMetaData } from "../utility/ImgMetaDataAPI";
+import { promisifyImageLoad, updateLabel } from "../../utility/helper";
+import { ImgMetaDataAPI, ImgMetaData } from "../../utility/ImgMetaDataAPI";
 
 export default class ImageGallery {
   constructor(shadowDOMContainer) {
@@ -188,7 +188,7 @@ export default class ImageGallery {
   uploadPhotos() {
     const uploadImages = [];
 
-    for (const [_, image] of this.selectedImages) {
+    for (const [, image] of this.selectedImages) {
       uploadImages.push({
         src: image.src,
         metadata: image.dataset.metadata,
