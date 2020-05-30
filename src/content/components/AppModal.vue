@@ -9,20 +9,20 @@
 </template>
 
 <script>
-import HelloWorld from "./HelloWorld.vue";
+import HelloWorld from './HelloWorld.vue'
 
 export default {
-  name: "AppModal",
+  name: 'AppModal',
   components: {
-    HelloWorld
-  }
-};
+    HelloWorld,
+  },
+}
 </script>
 
 <style>
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
 #app-modal {
   font-family: Avenir, Helvetica, Arial, sans-serif;
