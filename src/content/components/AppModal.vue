@@ -12,8 +12,8 @@
         v-if="showAppModal"
         class="p-4 bg-gray-200 h-600px absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
       >
-        <img alt="Vue logo" :src="closeBtnSrc" />
-        <HelloWorld msg="Welcome to Your Vue.js App for web extension???" />
+        <img alt="close modal" :src="closeBtnSrc" class="ml-auto" />
+        <ImageGallery msg="Welcome to Your Vue.js App for web extension???" />
       </div>
     </transition>
   </div>
@@ -38,8 +38,7 @@ export default {
   },
   computed: {
     closeBtnSrc() {
-      // return chrome.extension.getURL('assets/checkmark.png') - this works
-      return // TODO: get the actual close image icon
+      return chrome.extension.getURL('assets/close-icon.svg')
     },
   },
 }
