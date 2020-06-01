@@ -19,5 +19,5 @@
     }
   ],
   "web_accessible_resources": ["html/*.html", "css/*.css"],
-  "permissions": ["identity"]
+  "permissions": ["identity", "tabs"]
 }

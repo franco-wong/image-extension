@@ -12,7 +12,7 @@ sidebar.init().then(() => {
 /**
  * Listen on incoming messages coming from background
  */
-function     onMessageListener(/* request, sender, cb */) {
+function onMessageListener(/* request, sender, cb */) {
   if (!sidebar.isShown) {
     sidebar.openSidebar();
   } else {

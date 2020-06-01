@@ -25,8 +25,10 @@
   }
 
 */
+
 let access_token;
-const REQUEST_URI = "https://www.googleapis.com/drive/v3/files";
+const OFFICIAL_MASTER_FOLDER_NAME = 'Image Extension', 
+      REQUEST_URI = "https://www.googleapis.com/drive/v3/files";
 
 function getAuthBearer() {
   return `Bearer ${access_token}`;
@@ -59,17 +61,17 @@ function getCreateRequestHeader() {
     },
     body: JSON.stringify({
       mimeType: "application/vnd.google-apps.folder",
-      name: "Image Extension",
+      name: OFFICIAL_MASTER_FOLDER_NAME,
     }),
   };
 }
 
 function sendListRequest() {
-  return fetch(getRequestURI(true), getRequestHeader());
+  return fetch(getRequestURI('list'), getRequestHeader());
 }
 
 function createFolderRequest() {
-  fetch(REQUEST_URI, getCreateRequestHeader())
+  fetch(getRequestURI(), getCreateRequestHeader())
     .then((response) => response.json())
     .then((json) => json.id);
 }
@@ -79,7 +81,7 @@ export function findAndCreateFolder(accessToken) {
   return sendListRequest()
     .then((response) => response.json())
     .then((json) => {
-      if (json.files.length !== 0 && json.files[0].name === "Image Extension") {
+      if (json.files.length !== 0 && json.files[0].name === OFFICIAL_MASTER_FOLDER_NAME) {
         return json.files[0].id;
       }
     })
@@ -87,6 +89,6 @@ export function findAndCreateFolder(accessToken) {
       if (result) {
         return result;
       }
-      return createFolderRequest();
+        return createFolderRequest();
     });
 }

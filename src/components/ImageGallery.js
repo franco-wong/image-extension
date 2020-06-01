@@ -71,9 +71,9 @@ export default class ImageGallery {
     });
   }
 
-  init() {
-    const imageResults = ImgMetaDataAPI.getImgMetaData();
-
+  init(domain) {
+    const imageResults = ImgMetaDataAPI.getImgMetaData(document, domain);
+    console.log(imageResults);
     // Store images in a Map for quick storage & retrievals to avoid storing duplicate image links
     for (const image of imageResults) {
       this.galleryImageMap.set(image.src, image);
