@@ -14,7 +14,6 @@
       >
         <!-- <img alt="Vue logo" src="./assets/logo.png" /> -->
         <HelloWorld msg="Welcome to Your Vue.js App for web extension" />
-        <h1 class="text-4xl font-bold text-white-500">Hello World!</h1>
       </div>
     </transition>
   </div>
