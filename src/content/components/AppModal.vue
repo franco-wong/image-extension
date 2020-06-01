@@ -12,29 +12,35 @@
         v-if="showAppModal"
         class="p-4 bg-gray-200 h-600px absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
       >
-        <!-- <img alt="Vue logo" src="./assets/logo.png" /> -->
-        <HelloWorld msg="Welcome to Your Vue.js App for web extension" />
+        <img alt="Vue logo" :src="closeBtnSrc" />
+        <HelloWorld msg="Welcome to Your Vue.js App for web extension???" />
       </div>
     </transition>
   </div>
 </template>
 
 <script>
-import HelloWorld from './HelloWorld.vue'
+import ImageGallery from './ImageGallery.vue'
 
 export default {
   name: 'AppModal',
+  components: {
+    ImageGallery,
+  },
   props: {
     showAppModal: {
       type: Boolean,
       default: false,
     },
   },
-  components: {
-    HelloWorld,
-  },
   data() {
     return {}
+  },
+  computed: {
+    closeBtnSrc() {
+      // return chrome.extension.getURL('assets/checkmark.png') - this works
+      return // TODO: get the actual close image icon
+    },
   },
 }
 </script>
