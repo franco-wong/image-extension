@@ -1,24 +1,37 @@
 <template>
-  <div class="hello">
-    <h1 class="text-blue-600">{{ msg }}</h1>
+  <div class="test">
+    <img
+      v-for="image in images"
+      :key="image.src"
+      :src="image.src"
+      :alt="image.alt"
+    />
   </div>
 </template>
 
 <script>
+import { fetchPageImages } from '@utilities/helper';
+
 export default {
   name: 'ImageGallery',
-  props: {
-    msg: {
-      type: String,
-      default: '',
-    },
+  props: {},
+  created() {
+    this.images = fetchPageImages();
   },
-}
+  data() {
+    return {
+      images: [],
+    };
+  },
+};
 </script>
 
 <style scoped>
-h1 {
-  font-weight: 600;
-  font-size: 24px;
+.test {
+  border: 1px solid red;
+  overflow-y: scroll;
+  line-height: 0;
+  column-count: 3;
+  column-gap: 0px;
 }
 </style>

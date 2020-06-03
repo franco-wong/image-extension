@@ -1,3 +1,14 @@
+const plugin = require('tailwindcss/plugin');
+
+const centerXYUtil = {
+  '.center-xy': {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  },
+};
+
 module.exports = {
   theme: {
     inset: {
@@ -7,10 +18,12 @@ module.exports = {
       '9000': 9000,
       high: 10001,
     },
-    height: {
-      '600px': '600px',
-    },
   },
   variants: {},
-  plugins: [],
-}
+  plugins: [
+    plugin(({ addUtilities }) => {
+      addUtilities(centerXYUtil);
+    }),
+  ],
+  corePlugins: {},
+};

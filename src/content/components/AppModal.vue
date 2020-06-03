@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed w-full z-high" :style="{ height: '100vh' }">
+  <div class="fixed z-high" :style="{ height: '100vh', width: '100vw' }">
     <transition name="fade">
       <div
         v-if="showAppModal"
@@ -10,17 +10,22 @@
     <transition name="fade">
       <div
         v-if="showAppModal"
-        class="p-4 bg-gray-200 h-600px absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        :style="{ height: '550px', width: '700px' }"
+        class="p-4 bg-gray-800 center-xy shadow-2xl"
       >
-        <img alt="close modal" :src="closeBtnSrc" class="ml-auto" />
-        <ImageGallery msg="Welcome to Your Vue.js App for web extension???" />
+        <img alt="close modal" :src="closeBtnSrc" class="ml-auto mb-4" />
+        <div class="flex" :style="{ height: '80%' }">
+          <ImageGallery class="flex-1" />
+          <div class="test" :style="{ width: '200px' }">Image Previewer</div>
+        </div>
+        <button class="ml-auto">Upload to Drive</button>
       </div>
     </transition>
   </div>
 </template>
 
 <script>
-import ImageGallery from './ImageGallery.vue'
+import ImageGallery from './ImageGallery.vue';
 
 export default {
   name: 'AppModal',
@@ -34,14 +39,14 @@ export default {
     },
   },
   data() {
-    return {}
+    return {};
   },
   computed: {
     closeBtnSrc() {
-      return chrome.extension.getURL('assets/close-icon.svg')
+      return chrome.extension.getURL('assets/close-icon.svg');
     },
   },
-}
+};
 </script>
 
 <style>
@@ -60,5 +65,9 @@ export default {
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.test {
+  border: 1px solid orange;
 }
 </style>

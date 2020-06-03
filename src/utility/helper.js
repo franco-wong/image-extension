@@ -1,30 +1,14 @@
-export function fetchResourceString(filename) {
-  const url = chrome.runtime.getURL(filename);
-
-  return fetch(url)
-    .then((response) => {
-      if (response.ok) {
-        return response.text();
-      } else {
-        Promise.reject(response.statusText);
-      }
-    })
-    .catch(console.error);
+class ImgMetaData {
+  constructor(src, alt, width, height) {
+    this.src = src;
+    this.alt = alt;
+    this.width = width;
+    this.height = height;
+  }
 }
 
-export function promisifyImageLoad(image) {
-  return new Promise((resolve, reject) => {
-    image.addEventListener("load", () => resolve(image));
-    image.addEventListener("error", reject);
-  });
-}
-
-export function updateLabel(element = document, id, value) {
-  element.querySelector(`#${id}`).textContent = value;
-}
-
-export function inlineCSS(styles) {
-  Object.keys(styles).forEach((key) => {
-    this.style[key] = styles[key];
-  });
+export function fetchPageImages() {
+  return Array.from(document.querySelectorAll('img')).map(
+    (img) => new ImgMetaData(img.src, img.alt, img.width, img.height)
+  );
 }
