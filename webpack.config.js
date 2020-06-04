@@ -1,14 +1,14 @@
 // Node modules
-const path = require('path')
+const path = require('path');
 
 // Plugins
-const CopyPlugin = require('copy-webpack-plugin')
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
-const ExtensionReloader = require('webpack-extension-reloader')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const ExtensionReloader = require('webpack-extension-reloader');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = (env, argv) => {
-  const isDevelopment = argv.mode === 'development'
+  const isDevelopment = argv.mode === 'development';
 
   const webpackConfig = {
     mode: argv.mode,
@@ -25,7 +25,8 @@ module.exports = (env, argv) => {
     resolve: {
       alias: {
         ['@assets']: path.resolve(__dirname, 'src/assets'),
-        ['@components']: path.resolve(__dirname, 'src/components'),
+        ['@components']: path.resolve(__dirname, 'src/content/components'),
+        ['@styles']: path.resolve(__dirname, 'src/styles'),
         ['@utilities']: path.resolve(__dirname, 'src/utility'),
       },
     },
@@ -41,21 +42,14 @@ module.exports = (env, argv) => {
           test: /\.js$/,
           loader: 'babel-loader',
           exclude: (file) => {
-            return /node_modules/.test(file) && !/\.vue\.js/.test(file)
+            return /node_modules/.test(file) && !/\.vue\.js/.test(file);
           },
         },
-        // this will apply to both plain `.css` files
-        // AND `<style>` blocks in `.vue` files
+        // this will apply to both plain `.scss` files
+        // AND `<style lang="scss">` blocks in `.vue` files
         {
-          test: /\.css$/,
-          use: [
-            'vue-style-loader',
-            {
-              loader: 'css-loader',
-              options: { importLoaders: 1 },
-            },
-            'postcss-loader',
-          ],
+          test: /\.scss$/,
+          use: ['vue-style-loader', 'css-loader', 'sass-loader'],
         },
       ],
     },
@@ -69,7 +63,7 @@ module.exports = (env, argv) => {
       new VueLoaderPlugin(),
       new CleanWebpackPlugin(),
     ],
-  }
+  };
 
   // To retrigger build on code changes during development
   if (isDevelopment) {
@@ -82,8 +76,8 @@ module.exports = (env, argv) => {
           background: 'src/background/background',
         },
       })
-    )
+    );
   }
 
-  return webpackConfig
-}
+  return webpackConfig;
+};

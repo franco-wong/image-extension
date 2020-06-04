@@ -26,7 +26,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .test {
   border: 1px solid red;
   overflow-y: scroll;

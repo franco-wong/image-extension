@@ -8,10 +8,7 @@
     "lint": "npx eslint src/**/*.{js,vue}",
     "stats": "npx webpack --profile --json > stats.json && npx webpack-bundle-analyzer stats.json"
   },
-  "dependencies": {
-    "autoprefixer": "^9.8.0",
-    "tailwindcss": "^1.4.6"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.3.1",
     "clean-webpack-plugin": "^3.0.0",
@@ -19,8 +16,10 @@
     "css-loader": "^3.5.3",
     "eslint": "^7.1.0",
     "eslint-plugin-vue": "^6.2.2",
+    "node-sass": "^4.14.1",
     "postcss-loader": "^3.0.0",
     "prettier": "2.0.5",
+    "sass-loader": "^8.0.2",
     "vue": "^2.6.11",
     "vue-loader": "^15.9.2",
     "vue-template-compiler": "^2.6.11",

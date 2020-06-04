@@ -1,45 +1,23 @@
 <template>
-  <div class="fixed z-high" :style="{ height: '100vh', width: '100vw' }">
-    <transition name="fade">
-      <div
-        v-if="showAppModal"
-        class="absolute w-full bg-black opacity-50"
-        :style="{ height: '100%' }"
-      />
-    </transition>
-    <transition name="fade">
-      <div
-        v-if="showAppModal"
-        :style="{ height: '550px', width: '700px' }"
-        class="p-4 bg-gray-800 center-xy shadow-2xl"
-      >
-        <img alt="close modal" :src="closeBtnSrc" class="ml-auto mb-4" />
-        <div class="flex" :style="{ height: '80%' }">
-          <ImageGallery class="flex-1" />
-          <div class="test" :style="{ width: '200px' }">Image Previewer</div>
-        </div>
-        <button class="ml-auto">Upload to Drive</button>
-      </div>
-    </transition>
+  <div class="modal">
+    <img class="modal__close-icon" alt="close modal" :src="closeBtnSrc" />
+    <div class="modal__gallery">
+      <ImageGallery class="" />
+      <!-- <div>Image Previewer</div> -->
+    </div>
+    <div class="modal__actions">
+      <button>Upload to Drive</button>
+    </div>
   </div>
 </template>
 
 <script>
-import ImageGallery from './ImageGallery.vue';
+import ImageGallery from '@components/ImageGallery.vue';
 
 export default {
   name: 'AppModal',
   components: {
     ImageGallery,
-  },
-  props: {
-    showAppModal: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data() {
-    return {};
   },
   computed: {
     closeBtnSrc() {
@@ -49,25 +27,33 @@ export default {
 };
 </script>
 
-<style>
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+<style lang="scss" scoped>
+$first-layer: 0px 11px 15px -7px rgba(0, 0, 0, 0.2);
+$second-layer: 0px 24px 38px 3px rgba(0, 0, 0, 0.14);
+$third-layer: 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
 
-#app-modal * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+.modal {
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: $first-layer, $second-layer, $third-layer;
+  color: rgba(0, 0, 0, 0.87);
+  height: 550px;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  z-index: 10002;
 }
 
-#app-modal {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.modal__close-icon {
+  margin-left: auto;
 }
 
-.test {
-  border: 1px solid orange;
+.modal__gallery {
+  display: flex;
+}
+
+.modal__actions {
 }
 </style>
