@@ -3,13 +3,15 @@
  *    Allowable format
  *      -[]
  *    Allowable values
- *      -"up", "down", "next", "prev"
+ *      -"up", "down,[number]", "next", "prev"
+ *      - if value === down, split the down to extract the number
  * 
  * Selector:
  *    Allowable format
  *      -[]
  *    Allowable values
  *      -"(tag)"
+ *      -if there are multiple div or a tags, the format to clarify 'a,2'
  */
 
 /**
