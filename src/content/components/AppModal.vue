@@ -1,60 +1,69 @@
 <template>
-  <div class="fixed w-full z-high" :style="{ height: '100vh' }">
-    <transition name="fade">
-      <div
-        v-if="showAppModal"
-        class="absolute w-full bg-black opacity-50"
-        :style="{ height: '100%' }"
-      />
-    </transition>
-    <transition name="fade">
-      <div
-        v-if="showAppModal"
-        class="p-4 bg-gray-200 h-600px absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-      >
-        <!-- <img alt="Vue logo" src="./assets/logo.png" /> -->
-        <HelloWorld msg="Welcome to Your Vue.js App for web extension" />
-        <h1 class="text-4xl font-bold text-white-500">Hello World!</h1>
-      </div>
-    </transition>
+  <div class="modal">
+    <img class="modal__close-icon" alt="close modal" :src="closeBtnSrc" />
+    <div class="modal__gallery">
+      <ImageGallery />
+      <!-- <div>Image Previewer</div> -->
+    </div>
+    <div class="modal__actions">
+      <button>Upload to Drive</button>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './HelloWorld.vue'
+import ImageGallery from '@components/ImageGallery.vue';
 
 export default {
   name: 'AppModal',
-  props: {
-    showAppModal: {
-      type: Boolean,
-      default: false,
+  components: {
+    ImageGallery,
+  },
+  computed: {
+    closeBtnSrc() {
+      return chrome.extension.getURL('assets/close-icon.svg');
     },
   },
-  components: {
-    HelloWorld,
-  },
-  data() {
-    return {}
-  },
-}
+};
 </script>
 
-<style>
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+<style lang="scss" scoped>
+$first-layer: 0px 11px 15px -7px rgba(0, 0, 0, 0.2);
+$second-layer: 0px 24px 38px 3px rgba(0, 0, 0, 0.14);
+$third-layer: 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
 
-#app-modal * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+.modal {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: $first-layer, $second-layer, $third-layer;
+  color: rgba(0, 0, 0, 0.87);
+  display: flex;
+  flex-direction: column;
+  height: 550px;
+  left: 50%;
+  padding: 16px;
+  position: fixed;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  z-index: 10002;
 }
 
-#app-modal {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.modal__close-icon {
+  margin-left: auto;
+}
+
+.modal__gallery {
+  display: flex;
+  margin-top: 8px;
+}
+
+.modal__actions {
+  margin-top: auto;
+
+  button {
+    display: block;
+    margin-left: auto;
+  }
 }
 </style>
