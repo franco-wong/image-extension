@@ -1,5 +1,5 @@
 <template>
-  <div class="app" v-if="showAppModal">
+  <div class="ifn-app" style="">
     <transition name="fade">
       <div class="app__inactive-element" />
     </transition>
@@ -23,30 +23,34 @@ export default {
       default: false,
     },
   },
+  watch: {
+    showAppModal(status) {
+      console.log('called...', status);
+    },
+  },
 };
 </script>
 
 <style lang="scss">
-#app-modal * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@import '../styles/resets';
 
-#app-modal {
+.ifn-app {
+  @include reset-ua-styles;
+
   font-family: Avenir, Helvetica, Arial, sans-serif;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 }
 </style>
 
 <style lang="scss" scoped>
-.app {
-  height: 100vh;
-  width: 100vw;
-}
-
 .app__inactive-element {
   position: fixed;
   left: 0;

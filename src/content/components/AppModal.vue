@@ -2,7 +2,7 @@
   <div class="modal">
     <img class="modal__close-icon" alt="close modal" :src="closeBtnSrc" />
     <div class="modal__gallery">
-      <ImageGallery class="" />
+      <ImageGallery />
       <!-- <div>Image Previewer</div> -->
     </div>
     <div class="modal__actions">
@@ -34,12 +34,15 @@ $third-layer: 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
 
 .modal {
   background-color: #fff;
-  border-radius: 4px;
+  border-radius: 8px;
   box-shadow: $first-layer, $second-layer, $third-layer;
   color: rgba(0, 0, 0, 0.87);
+  display: flex;
+  flex-direction: column;
   height: 550px;
   left: 50%;
-  position: absolute;
+  padding: 16px;
+  position: fixed;
   top: 50%;
   transform: translate(-50%, -50%);
   width: 800px;
@@ -52,8 +55,15 @@ $third-layer: 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
 
 .modal__gallery {
   display: flex;
+  margin-top: 8px;
 }
 
 .modal__actions {
+  margin-top: auto;
+
+  button {
+    display: block;
+    margin-left: auto;
+  }
 }
 </style>

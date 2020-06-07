@@ -8,7 +8,5 @@ class ImgMetaData {
 }
 
 export function fetchPageImages() {
-  return Array.from(document.querySelectorAll('img')).map(
-    (img) => new ImgMetaData(img.src, img.alt, img.width, img.height)
-  );
+  return Array.from(document.querySelectorAll('img'));
 }
