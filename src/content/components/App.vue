@@ -1,11 +1,13 @@
 <template>
-  <div class="ifn-app" style="">
+  <div class="ifn-app">
     <transition name="fade">
-      <div class="app__inactive-element" />
+      <div
+        v-show="showAppModal"
+        class="shadowed-background"
+        @click="$emit('change', false)"
+      />
     </transition>
-    <transition name="fade">
-      <AppModal />
-    </transition>
+    <AppModal class="app-modal" :style="{ left: leftPosition }" />
   </div>
 </template>
 
@@ -17,15 +19,19 @@ export default {
   components: {
     AppModal,
   },
+  model: {
+    prop: 'showAppModal',
+    event: 'change',
+  },
+  computed: {
+    leftPosition() {
+      return this.showAppModal ? '50%' : '150%';
+    },
+  },
   props: {
     showAppModal: {
       type: Boolean,
       default: false,
-    },
-  },
-  watch: {
-    showAppModal(status) {
-      console.log('called...', status);
     },
   },
 };
@@ -51,13 +57,27 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.app__inactive-element {
-  position: fixed;
+.app-modal {
+  transition: left 0.5s ease-in-out;
+}
+
+.shadowed-background {
+  background-color: rgba(0, 0, 0, 0.5);
+  bottom: 0;
+  cursor: pointer;
   left: 0;
+  position: fixed;
   right: 0;
   top: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
   z-index: 10001;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

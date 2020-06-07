@@ -8,7 +8,7 @@ document.body.prepend(root);
 Vue.config.productionTip = false;
 
 const vm = new Vue({
-  data: { showModal: true },
+  data: { showModal: false },
   render(createElement) {
     return createElement(App, {
       props: {
