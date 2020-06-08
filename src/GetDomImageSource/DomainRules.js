@@ -4,7 +4,7 @@
  *      -[]
  *    Allowable values
  *      -"up", "down,[number]", "next", "prev"
- *      - if value === down, split the down to extract the number
+ *      - if value === down, split.(",") to extract the i-th child
  * 
  * Selector:
  *    Allowable format
@@ -40,14 +40,16 @@ export const RULE_SET = {
     {
       'name':     "bing",
       'regex':    /www\.bing\.com\/images\/search\?q=/,
-      'steps':    [""],
+      'steps':    ["up", "up", "MakeRequest"],
       'selector': [""]
+      // 
     },
     {
       'name':     "yahoo",
       'regex':    /images\.search\.yahoo\.com\/search\/images/,
-      'steps':    [""],
-      'selector': [""]
+      'steps':    ["up", "MakeRequest"],
+      'selector': [""] 
+      // Once we get the response from the request, use class="site" to get a tag containing img source
     },
     {
       'name':     "pinterest",

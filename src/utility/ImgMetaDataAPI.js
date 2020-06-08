@@ -10,18 +10,6 @@ export class ImgMetaData {
   }
 }
 
-function findImageSourceInDom(domain, img){
-  let current_rules = RULE_SET[domain];
-  // let 
-  if(domain !== "google") return null;
-
-  let imageSourceParent = img.parentElement.parentElement.nextElementSibling;
-
-  if(imageSourceParent) return imageSourceParent.href;
-
-  return null;
-}
-
 export class ImgMetaDataAPI {
   static getImgMetaData(node = document, domain) {
     return Array.from(node.querySelectorAll("img")).map(

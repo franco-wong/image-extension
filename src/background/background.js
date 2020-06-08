@@ -59,6 +59,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  */
 chrome.browserAction.onClicked.addListener((tab) => {
   const epochTime = Math.round(now.getTime() / 1000);
+
+  requestToSecondaryPageForImageSource()
+    .then(result => console.log(result));
+
   if (epochTime < accessToken.expiry) {
     chrome.tabs.sendMessage(tab.id, "");
     return;
