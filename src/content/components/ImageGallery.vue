@@ -1,12 +1,19 @@
 <template>
   <div class="image-gallery" ref="gallery">
     <div
+      v-for="image in pageImages"
+      :key="image.srcIndex"
       class="image-gallery__tile"
-      v-for="(image, index) in galleryImages"
-      :key="index"
     >
       <div class="tile__image">
-        <img :src="image.src" :alt="image.alt" @load="imageLoaded" />
+        <img
+          :alt="image.alt"
+          :src="image.src"
+          :data-id="image.id"
+          @click="handleImageClick"
+          @load="handleImageLoaded"
+          @error="handleImageError"
+        />
       </div>
     </div>
   </div>
@@ -18,28 +25,30 @@ import { fetchPageImages } from '@utilities/helper';
 export default {
   name: 'ImageGallery',
   props: {},
-  computed: {
-    galleryImages() {
-      return this.images;
-    },
-  },
+  computed: {},
   mounted() {
     for (const image of document.querySelectorAll('img')) {
       if (image.width + image.naturalWidth < 10) {
         continue;
       }
 
-      this.images.push({ alt: image.alt, src: image.src });
+      const source = image.src || image.dataset.src;
+
+      this.pageImages.push({
+        alt: image.alt,
+        src: source,
+        id: this.pageImages.length,
+      });
     }
   },
   data() {
     return {
-      images: [],
+      pageImages: [],
     };
   },
   methods: {
-    imageLoaded(image) {
-      const tileElement = image.currentTarget.parentElement;
+    handleImageLoaded(e) {
+      const tileElement = e.currentTarget.parentElement;
 
       const gallery = window.getComputedStyle(this.$refs.gallery);
       const height = tileElement.getBoundingClientRect().height;
@@ -48,27 +57,56 @@ export default {
       const gridRowGap = parseInt(gallery.getPropertyValue('grid-row-gap'));
 
       const spanValue = Math.ceil(
-        (image.currentTarget.height + gridRowGap) / (gridAutoRows + gridRowGap)
+        (e.currentTarget.height + gridRowGap) / (gridAutoRows + gridRowGap)
       );
 
-      image.currentTarget.parentElement.parentElement.style.gridRowEnd = `span ${spanValue}`;
+      e.currentTarget.parentElement.parentElement.style.gridRowEnd = `span ${spanValue}`;
+
+      this.$store.commit('setImages', {
+        type: 'ADD',
+        element: e.currentTarget,
+        id: e.currentTarget.dataset.id,
+      });
+    },
+    handleImageError(e) {
+      e.currentTarget.style.display = 'none';
+      this.$store.commit('setImages', {
+        type: 'REMOVE',
+        id: e.currentTarget.dataset.id,
+      });
+    },
+    handleImageClick({ currentTarget: imageElement }) {
+      imageElement.classList.toggle('image-selected');
+
+      const type = imageElement.classList.contains('image-selected')
+        ? 'ADD'
+        : 'REMOVE';
+
+      this.$store.commit('setSelectedImages', {
+        type,
+        id: imageElement.dataset.id,
+      });
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.image-selected {
+  box-shadow: 0 0 8px 4px #330a80 !important;
+}
+
 .image-gallery {
+  border: 1px dotted gray;
   display: grid;
+  grid-auto-rows: 8px;
   grid-column-gap: 8px;
   grid-row-gap: 8px;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  grid-auto-rows: 8px;
   height: 450px;
-  width: 100%;
-  border: 1px dotted gray;
   overflow-y: scroll;
   padding: 8px;
+  width: 100%;
 
   .image-gallery__tile {
     padding: 4px;
@@ -83,10 +121,10 @@ export default {
   }
 
   img {
-    max-width: 100%;
     border-radius: 8px;
     box-shadow: 0 0 16px #333;
-    transition: all 1.5s ease;
+    max-width: 100%;
+    transition: all 0.3s ease;
 
     &:hover {
       box-shadow: 0 0 32px #333;

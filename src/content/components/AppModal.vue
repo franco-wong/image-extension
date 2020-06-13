@@ -1,11 +1,18 @@
 <template>
   <div class="modal">
-    <img class="modal__close-icon" alt="close modal" :src="closeBtnSrc" />
+    <img
+      class="modal__close-icon"
+      alt="close modal"
+      :src="closeIcon"
+      @click="handleClose"
+    />
     <div class="modal__gallery">
       <ImageGallery />
-      <!-- <div>Image Previewer</div> -->
     </div>
     <div class="modal__actions">
+      <span>Images found: {{ pageImages }}</span>
+      &nbsp;
+      <span>Selected images: {{ selectedPageImages }}</span>
       <button>Upload to Drive</button>
     </div>
   </div>
@@ -20,22 +27,32 @@ export default {
     ImageGallery,
   },
   computed: {
-    closeBtnSrc() {
+    closeIcon() {
       return chrome.extension.getURL('assets/close-icon.svg');
+    },
+    pageImages() {
+      return this.$store.state.imagesCount;
+    },
+    selectedPageImages() {
+      return this.$store.state.selectedImagesCount;
+    },
+  },
+  methods: {
+    handleClose() {
+      this.$store.commit('setShowApp', { status: false });
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-$first-layer: 0px 11px 15px -7px rgba(0, 0, 0, 0.2);
-$second-layer: 0px 24px 38px 3px rgba(0, 0, 0, 0.14);
-$third-layer: 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
-
 .modal {
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: $first-layer, $second-layer, $third-layer;
+  // prettier-ignore
+  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
+    0px 24px 38px 3px rgba(0, 0, 0, 0.14),
+    0px 9px 46px 8px rgba(0, 0, 0, 0.12);
   color: rgba(0, 0, 0, 0.87);
   display: flex;
   flex-direction: column;
@@ -50,6 +67,7 @@ $third-layer: 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
 }
 
 .modal__close-icon {
+  cursor: pointer;
   margin-left: auto;
 }
 
