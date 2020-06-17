@@ -4,3 +4,5 @@ export const GOOGLE_AUTH = {
   Scope: "https://www.googleapis.com/auth/drive",
   AuthDomain: "https://accounts.google.com/o/oauth2/auth",
 };
+
+export const STORE_MUTATIONS = {};

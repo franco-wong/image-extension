@@ -1,11 +1,7 @@
 <template>
   <div class="ifn-app">
     <transition name="fade">
-      <div
-        v-show="showAppModal"
-        class="shadowed-background"
-        @click="$emit('change', false)"
-      />
+      <div v-show="isAppShown" class="shadowed-background" />
     </transition>
     <AppModal class="app-modal" :style="{ left: leftPosition }" />
   </div>
@@ -19,21 +15,15 @@ export default {
   components: {
     AppModal,
   },
-  model: {
-    prop: 'showAppModal',
-    event: 'change',
-  },
   computed: {
+    isAppShown() {
+      return this.$store.state.showApp;
+    },
     leftPosition() {
-      return this.showAppModal ? '50%' : '150%';
+      return this.$store.state.showApp ? '50%' : '150%';
     },
   },
-  props: {
-    showAppModal: {
-      type: Boolean,
-      default: false,
-    },
-  },
+  methods: {},
 };
 </script>
 
@@ -64,7 +54,6 @@ export default {
 .shadowed-background {
   background-color: rgba(0, 0, 0, 0.5);
   bottom: 0;
-  cursor: pointer;
   left: 0;
   position: fixed;
   right: 0;
