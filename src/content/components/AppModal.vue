@@ -13,18 +13,30 @@
       <span>Images found: {{ pageImages }}</span>
       &nbsp;
       <span>Selected images: {{ selectedPageImages }}</span>
-      <button>Upload to Drive</button>
+      <AppModalButton
+        :name="uploadToDrive"
+        :function="uploadFunction"
+        v-on:function="task"
+      ></AppModalButton>
     </div>
   </div>
 </template>
 
 <script>
 import ImageGallery from '@components/ImageGallery.vue';
+import AppModalButton from '@components/AppModalButton.vue';
 
 export default {
   name: 'AppModal',
   components: {
     ImageGallery,
+    AppModalButton,
+  },
+  data() {
+    return {
+      uploadToDrive: 'Upload to Drive',
+      uploadFunction: 'upload'
+    }
   },
   computed: {
     closeIcon() {
@@ -41,6 +53,9 @@ export default {
     handleClose() {
       this.$store.commit('setShowApp', { status: false });
     },
+    task(name) {
+      console.log("uploading", name);
+    }
   },
 };
 </script>
@@ -81,7 +96,7 @@ export default {
 
   button {
     display: block;
-    margin-left: auto;
+    margin-right: auto;
   }
 }
 </style>
