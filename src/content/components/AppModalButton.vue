@@ -1,13 +1,13 @@
 <template>
   <div>
-    <button @click="$emit('function', name)">{{ name }}</button>
+    <button @click="$emit('function', purpose)">{{ name }}</button>
   </div>  
 </template>
 
 <script>
 export default {
   name: 'AppModalButton',
-  props: ["name", "function"],
+  props: ["name", "purpose"],
   methods: {}
 }
 </script>

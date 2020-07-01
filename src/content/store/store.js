@@ -24,16 +24,34 @@ export default {
       }
     },
     setSelectedImages(state, payload) {
+      console.log("payload",payload);
+      let obj = {
+        id: payload.id,
+        imgSrc: payload.imgSrc
+      }
       switch (payload.type) {
         case 'ADD':
-          state.selectedImages.add(payload.id);
+          state.selectedImages.add(JSON.stringify(obj));
           state.selectedImagesCount++;
           break;
         case 'REMOVE':
-          state.selectedImages.delete(payload.id);
+          state.selectedImages.delete(JSON.stringify(obj));
           state.selectedImagesCount > 0 && state.selectedImagesCount--;
           break;
       }
+    },
+    setUnselectAllImages(state){
+      for(let obj of state.selectedImages){
+        obj = JSON.parse(obj)
+        let payload = {
+          id: obj.id,
+          imgSrc: obj.imgSrc,
+        }
+        state.selectedImages.delete(JSON.stringify(payload));
+
+        state.images.get(obj.id).classList.remove('image-selected');
+      }
+      state.selectedImagesCount = 0;
     },
   },
   actions: {},

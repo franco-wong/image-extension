@@ -15,8 +15,13 @@
       <span>Selected images: {{ selectedPageImages }}</span>
       <AppModalButton
         :name="uploadToDrive"
-        :function="uploadFunction"
-        v-on:function="task"
+        :purpose="uploadFunction"
+        @function="task"
+      ></AppModalButton>
+      <AppModalButton
+        :name="unselectAll"
+        :purpose="unselectFunction"
+        @function="task"
       ></AppModalButton>
     </div>
   </div>
@@ -35,7 +40,9 @@ export default {
   data() {
     return {
       uploadToDrive: 'Upload to Drive',
-      uploadFunction: 'upload'
+      uploadFunction: 'upload',
+      unselectAll: 'Unselect Images',
+      unselectFunction: 'unselect'
     }
   },
   computed: {
@@ -53,8 +60,16 @@ export default {
     handleClose() {
       this.$store.commit('setShowApp', { status: false });
     },
-    task(name) {
-      console.log("uploading", name);
+    task(purpose) {
+      if(purpose === 'upload'){
+        this.upload();
+      }
+      else if(purpose === 'unselect'){
+        this.$store.commit('setUnselectAllImages');
+      }
+    },
+    upload(){
+      console.log("uploading");
     }
   },
 };
