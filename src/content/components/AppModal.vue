@@ -86,7 +86,9 @@ export default {
         },
         (response) => 
         {
-          console.log('Drive upload response',response);
+          console.log('Drive upload response:',response);
+          console.log('Unselecting all images.');
+          this.$store.commit('setUnselectAllImages');
         }
       );
     }
