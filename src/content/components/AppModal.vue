@@ -69,7 +69,26 @@ export default {
       }
     },
     upload(){
-      console.log("uploading");
+      // Convert the selectedImages set to an array of image Objects
+      const imagesToUpload = this.$store.state.selectedImages;
+      let imagesObj = [];
+      for(let image of imagesToUpload){
+        const imageJSON = JSON.parse(image);
+        let imagesChildObj = {}
+        imagesChildObj.src = imageJSON.imgSrc;
+        imagesChildObj.metadata = 'Temp Null';
+        imagesObj.push(imagesChildObj);
+      }
+      chrome.runtime.sendMessage(
+        {
+          command: "UPLOAD_IMAGES",
+          imagesObj,
+        },
+        (response) => 
+        {
+          console.log('Drive upload response',response);
+        }
+      );
     }
   },
 };

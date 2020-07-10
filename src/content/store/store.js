@@ -52,7 +52,7 @@ export default {
         state.images.get(obj.id).classList.remove('image-selected');
       }
       state.selectedImagesCount = 0;
-    },
+    }
   },
   actions: {},
 };
