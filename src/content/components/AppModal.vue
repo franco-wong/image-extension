@@ -128,9 +128,11 @@ export default {
 .modal__actions {
   margin-top: auto;
 
-  button {
-    display: block;
-    margin-right: auto;
-  }
+  // button {
+  //   border-width:0;
+  //   background-color:red;
+  //   display: block;
+  //   margin-right: auto;
+  // }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div id="buttonDiv">
     <button @click="$emit('function', purpose)">{{ name }}</button>
-  </div>  
+  </div>
 </template>
 
 <script>
@@ -12,6 +12,18 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style scoped lang="scss">
+  * {
+    margin: 0;
+  }
+  #buttonDiv {
+    display: inline-block;
+    padding: 0;
+    float: right;
+    margin-left: 5px;
+  }
+  button {
+    padding: 5px;
+    border: none;
+  }
 </style>
