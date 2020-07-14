@@ -68,7 +68,7 @@ export default {
         this.$store.commit('setUnselectAllImages');
       }
     },
-    upload(){
+    convertImageSetToArray(){
       // Convert the selectedImages set to an array of image Objects
       const imagesToUpload = this.$store.state.selectedImages;
       let imagesObj = [];
@@ -79,10 +79,13 @@ export default {
         imagesChildObj.metadata = 'Temp Null';
         imagesObj.push(imagesChildObj);
       }
+      return imagesObj;
+    },
+    upload(){      
       chrome.runtime.sendMessage(
         {
           command: "UPLOAD_IMAGES",
-          imagesObj,
+          imagesObj: this.convertImageSetToArray(),
         },
         (response) => 
         {
