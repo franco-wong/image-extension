@@ -85,6 +85,7 @@ export default {
       this.$store.commit('setSelectedImages', {
         type,
         id: imageElement.dataset.id,
+        imgSrc: imageElement.src,
       });
     },
   },

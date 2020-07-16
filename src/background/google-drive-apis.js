@@ -115,7 +115,8 @@ export function startUploading(
   for (let image of listOfImages) {
     const metaData = {
       name: getTodaysDate() + pageSourceTitle,
-      description: buildMetaDataString(image.metadata, pageSourceURL),
+      // TODO: temporarily disable metadata until we figure out what to include
+      // description: buildMetaDataString(image.metadata, pageSourceURL),
       parents: [folderId],
     };
 
