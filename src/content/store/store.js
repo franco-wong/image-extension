@@ -13,27 +13,51 @@ export default {
     },
     setImages(state, payload) {
       switch (payload.type) {
-        case 'ADD':
-          state.images.set(payload.id, payload.element);
+        case 'ADD': {
+          const source = payload.element.src || payload.element.dataset.src;
+          state.images = new Map(
+            state.images.set(payload.element.src, payload.element)
+          );
           state.imagesCount++;
           break;
-        case 'REMOVE':
-          state.images.delete(payload.id);
+        }
+        case 'REMOVE': {
+          const source = payload.element.src || payload.element.dataset.src;
+          state.images = new Map(state.images.delete(source));
           state.imagesCount > 0 && state.imagesCount--;
           break;
+        }
       }
     },
     setSelectedImages(state, payload) {
+      console.log('payload', payload);
+      let obj = {
+        id: payload.id,
+        imgSrc: payload.imgSrc,
+      };
       switch (payload.type) {
         case 'ADD':
-          state.selectedImages.add(payload.id);
+          state.selectedImages.add(JSON.stringify(obj));
           state.selectedImagesCount++;
           break;
         case 'REMOVE':
-          state.selectedImages.delete(payload.id);
+          state.selectedImages.delete(JSON.stringify(obj));
           state.selectedImagesCount > 0 && state.selectedImagesCount--;
           break;
       }
+    },
+    setUnselectAllImages(state) {
+      for (let obj of state.selectedImages) {
+        obj = JSON.parse(obj);
+        let payload = {
+          id: obj.id,
+          imgSrc: obj.imgSrc,
+        };
+        state.selectedImages.delete(JSON.stringify(payload));
+
+        state.images.get(obj.id).classList.remove('image-selected');
+      }
+      state.selectedImagesCount = 0;
     },
   },
   actions: {},

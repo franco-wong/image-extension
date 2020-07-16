@@ -12,13 +12,15 @@ const accessToken = {
 
 let imagePromisify;
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log(request);
   switch (request.command) {
     case "UPLOAD_IMAGES":
+      console.log("uploading images")
       // find and create a "Image Extension" folder if it doesn't current exist
       findAndCreateFolder(accessToken.code).then((folderId) => {
         imagePromisify = startUploading(
           accessToken.code,
-          request.uploadImages,
+          request.imagesObj,
           sender.tab.url,
           sender.tab.title,
           folderId
@@ -28,7 +30,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           sendResponse("All images has been uploaded!");
         });
       });
-      console.log(request.uploadImages);
       break;
   }
 

@@ -6,14 +6,15 @@
       class="image-gallery__tile"
     >
       <div class="tile__image">
-        <img
+        {{ image }}
+        <!-- <img
           :alt="image.alt"
           :src="image.src"
           :data-id="image.id"
           @click="handleImageClick"
           @load="handleImageLoaded"
           @error="handleImageError"
-        />
+        /> -->
       </div>
     </div>
   </div>
@@ -25,54 +26,51 @@ import { fetchPageImages } from '@utilities/helper';
 export default {
   name: 'ImageGallery',
   props: {},
-  computed: {},
+  computed: {
+    pageImages() {
+      console.log('called...', Array.from(this.$store.state.images.values()));
+      return Array.from(this.$store.state.images.values());
+    },
+  },
   mounted() {
-    for (const image of document.querySelectorAll('img')) {
-      if (image.width + image.naturalWidth < 10) {
-        continue;
+    // Create watcher
+    this.observer = new MutationObserver((mutationList) => {
+      for (let mutation of mutationList) {
+        if (mutation.type === 'childList') {
+          [].forEach.call(mutation.target.children, this.handleMutationRecords);
+        }
       }
-
-      const source = image.src || image.dataset.src;
-
-      this.pageImages.push({
-        alt: image.alt,
-        src: source,
-        id: this.pageImages.length,
-      });
-    }
+    });
+    // Start watching the entire DOM tree
+    this.observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
   },
   data() {
     return {
-      pageImages: [],
+      observer: null,
     };
   },
   methods: {
-    handleImageLoaded(e) {
-      const tileElement = e.currentTarget.parentElement;
-
+    handleImageLoaded({ currentTarget: image }) {
+      const tileElement = image.parentElement;
       const gallery = window.getComputedStyle(this.$refs.gallery);
-      const height = tileElement.getBoundingClientRect().height;
-
       const gridAutoRows = parseInt(gallery.getPropertyValue('grid-auto-rows'));
       const gridRowGap = parseInt(gallery.getPropertyValue('grid-row-gap'));
 
       const spanValue = Math.ceil(
-        (e.currentTarget.height + gridRowGap) / (gridAutoRows + gridRowGap)
+        (image.height + gridRowGap) / (gridAutoRows + gridRowGap)
       );
 
-      e.currentTarget.parentElement.parentElement.style.gridRowEnd = `span ${spanValue}`;
+      tileElement.parentElement.style.gridRowEnd = `span ${spanValue}`;
+    },
+    handleImageError({ currentTarget: image }) {
+      image.style.display = 'none';
 
       this.$store.commit('setImages', {
-        type: 'ADD',
-        element: e.currentTarget,
-        id: e.currentTarget.dataset.id,
-      });
-    },
-    handleImageError(e) {
-      e.currentTarget.style.display = 'none';
-      this.$store.commit('setImages', {
         type: 'REMOVE',
-        id: e.currentTarget.dataset.id,
+        element: image,
       });
     },
     handleImageClick({ currentTarget: imageElement }) {
@@ -85,7 +83,48 @@ export default {
       this.$store.commit('setSelectedImages', {
         type,
         id: imageElement.dataset.id,
+        imgSrc: imageElement.src,
       });
+    },
+    handleMutationRecords(node) {
+      const nodeName = node.tagName.toLowerCase();
+      let results = [];
+
+      switch (nodeName) {
+        case 'img':
+          results.push(node);
+          break;
+        case 'div':
+          results = Array.from(node.querySelectorAll('img'));
+          break;
+      }
+
+      if (results.length > 0) {
+        results.reduce((accum, image) => {
+          if (this.$store.state.images.has(image.src)) {
+            return accum;
+          }
+
+          accum.push(image);
+          return accum;
+        }, []);
+      }
+
+      if (!results.length) return;
+
+      this.loadImagesOntoGallery(results);
+    },
+    loadImagesOntoGallery(images) {
+      for (const image of images) {
+        if (image.width + image.naturalWidth < 10) {
+          continue;
+        }
+
+        this.$store.commit('setImages', {
+          type: 'ADD',
+          element: image,
+        });
+      }
     },
   },
 };

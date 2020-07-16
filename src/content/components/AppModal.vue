@@ -13,18 +13,37 @@
       <span>Images found: {{ pageImages }}</span>
       &nbsp;
       <span>Selected images: {{ selectedPageImages }}</span>
-      <button>Upload to Drive</button>
+      <AppModalButton
+        :name="uploadToDrive"
+        :purpose="uploadFunction"
+        @function="task"
+      ></AppModalButton>
+      <AppModalButton
+        :name="unselectAll"
+        :purpose="unselectFunction"
+        @function="task"
+      ></AppModalButton>
     </div>
   </div>
 </template>
 
 <script>
 import ImageGallery from '@components/ImageGallery.vue';
+import AppModalButton from '@components/AppModalButton.vue';
 
 export default {
   name: 'AppModal',
   components: {
     ImageGallery,
+    AppModalButton,
+  },
+  data() {
+    return {
+      uploadToDrive: 'Upload to Drive',
+      uploadFunction: 'upload',
+      unselectAll: 'Unselect Images',
+      unselectFunction: 'unselect',
+    };
   },
   computed: {
     closeIcon() {
@@ -40,6 +59,39 @@ export default {
   methods: {
     handleClose() {
       this.$store.commit('setShowApp', { status: false });
+    },
+    task(purpose) {
+      if (purpose === 'upload') {
+        this.upload();
+      } else if (purpose === 'unselect') {
+        this.$store.commit('setUnselectAllImages');
+      }
+    },
+    convertImageSetToArray() {
+      // Convert the selectedImages set to an array of image Objects
+      const imagesToUpload = this.$store.state.selectedImages;
+      let imagesObj = [];
+      for (let image of imagesToUpload) {
+        const imageJSON = JSON.parse(image);
+        let imagesChildObj = {};
+        imagesChildObj.src = imageJSON.imgSrc;
+        imagesChildObj.metadata = 'Temp Null';
+        imagesObj.push(imagesChildObj);
+      }
+      return imagesObj;
+    },
+    upload() {
+      chrome.runtime.sendMessage(
+        {
+          command: 'UPLOAD_IMAGES',
+          imagesObj: this.convertImageSetToArray(),
+        },
+        (response) => {
+          console.log('Drive upload response:', response);
+          console.log('Unselecting all images.');
+          this.$store.commit('setUnselectAllImages');
+        }
+      );
     },
   },
 };
@@ -79,9 +131,11 @@ export default {
 .modal__actions {
   margin-top: auto;
 
-  button {
-    display: block;
-    margin-left: auto;
-  }
+  // button {
+  //   border-width:0;
+  //   background-color:red;
+  //   display: block;
+  //   margin-right: auto;
+  // }
 }
 </style>
