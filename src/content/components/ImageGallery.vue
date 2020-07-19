@@ -1,20 +1,15 @@
 <template>
   <div class="image-gallery" ref="gallery">
-    <div
-      v-for="image in pageImages"
-      :key="image.srcIndex"
-      class="image-gallery__tile"
-    >
-      <div class="tile__image">
-        {{ image }}
-        <!-- <img
+    <div v-for="(image, uniqueId) in pageImages" :key="uniqueId">
+      <div>
+        <img
           :alt="image.alt"
-          :src="image.src"
-          :data-id="image.id"
+          :src="resolveImageSource(image)"
+          :data-id="uniqueId"
           @click="handleImageClick"
-          @load="handleImageLoaded"
           @error="handleImageError"
-        /> -->
+          @load="handleImageLoaded"
+        />
       </div>
     </div>
   </div>
@@ -22,21 +17,24 @@
 
 <script>
 import { fetchPageImages } from '@utilities/helper';
+import { sha256 } from 'js-sha256';
 
 export default {
   name: 'ImageGallery',
   props: {},
   computed: {
     pageImages() {
-      console.log('called...', Array.from(this.$store.state.images.values()));
-      return Array.from(this.$store.state.images.values());
+      return this.$store.state.imagesMap;
     },
   },
   mounted() {
     // Create watcher
     this.observer = new MutationObserver((mutationList) => {
       for (let mutation of mutationList) {
-        if (mutation.type === 'childList') {
+        if (
+          // mutation.target.className !== 'image-gallery' && // Avoid infinite observer calls from removing image tiles
+          mutation.type === 'childList'
+        ) {
           [].forEach.call(mutation.target.children, this.handleMutationRecords);
         }
       }
@@ -50,6 +48,9 @@ export default {
   data() {
     return {
       observer: null,
+      imageWhitelist: [
+        'b092c27a80a2fadb0907d2b6d6d2100618c71319cf4447112754961017247b72', // not show our own chrome extension images - temp solution
+      ],
     };
   },
   methods: {
@@ -66,65 +67,57 @@ export default {
       tileElement.parentElement.style.gridRowEnd = `span ${spanValue}`;
     },
     handleImageError({ currentTarget: image }) {
-      image.style.display = 'none';
-
-      this.$store.commit('setImages', {
-        type: 'REMOVE',
-        element: image,
-      });
+      image.parentElement.parentElement.style.display = 'none';
     },
     handleImageClick({ currentTarget: imageElement }) {
       imageElement.classList.toggle('image-selected');
-
-      const type = imageElement.classList.contains('image-selected')
-        ? 'ADD'
-        : 'REMOVE';
-
-      this.$store.commit('setSelectedImages', {
-        type,
-        id: imageElement.dataset.id,
-        imgSrc: imageElement.src,
-      });
     },
     handleMutationRecords(node) {
-      const nodeName = node.tagName.toLowerCase();
-      let results = [];
+      let foundImages = Array.from(node.querySelectorAll('img'));
 
-      switch (nodeName) {
-        case 'img':
-          results.push(node);
-          break;
-        case 'div':
-          results = Array.from(node.querySelectorAll('img'));
-          break;
-      }
+      if (!foundImages.length) return;
 
-      if (results.length > 0) {
-        results.reduce((accum, image) => {
-          if (this.$store.state.images.has(image.src)) {
-            return accum;
-          }
+      // Converting array of elements into array of promises
+      foundImages = foundImages.reduce((accum, image) => {
+        const source = image.src || image.dataset.src;
+        const hash = sha256(source);
 
-          accum.push(image);
-          return accum;
-        }, []);
-      }
-
-      if (!results.length) return;
-
-      this.loadImagesOntoGallery(results);
-    },
-    loadImagesOntoGallery(images) {
-      for (const image of images) {
         if (image.width + image.naturalWidth < 10) {
-          continue;
+          return accum;
         }
 
-        this.$store.commit('setImages', {
-          type: 'ADD',
-          element: image,
-        });
-      }
+        if (hash in this.$store.state.imagesMap) {
+          return accum;
+        }
+
+        accum.push({ image, hash, source });
+        return accum;
+      }, []);
+
+      Promise.allSettled(foundImages)
+        .then((results) => {
+          return results.reduce((accum, result) => {
+            if (result.status !== 'fulfilled') return accum;
+
+            accum.push(result.value);
+            return accum;
+          }, []);
+        })
+        .then((filteredResults) => {
+          for (const { image, hash } of filteredResults) {
+            if (!this.imageWhitelist.includes(hash)) {
+              this.$store.commit('setImages', {
+                type: 'ADD',
+                element: image,
+                uniqueId: hash,
+              });
+            }
+          }
+        })
+        .catch(() => {});
+    },
+    resolveImageSource(image) {
+      return image.src || image.dataset.src;
     },
   },
 };

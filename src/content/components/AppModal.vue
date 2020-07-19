@@ -11,9 +11,9 @@
     </div>
     <div class="modal__actions">
       <span>Images found: {{ pageImages }}</span>
-      &nbsp;
+      <br />
       <span>Selected images: {{ selectedPageImages }}</span>
-      <AppModalButton
+      <!-- <AppModalButton
         :name="uploadToDrive"
         :purpose="uploadFunction"
         @function="task"
@@ -22,7 +22,7 @@
         :name="unselectAll"
         :purpose="unselectFunction"
         @function="task"
-      ></AppModalButton>
+      ></AppModalButton> -->
     </div>
   </div>
 </template>
@@ -50,10 +50,10 @@ export default {
       return chrome.extension.getURL('assets/close-icon.svg');
     },
     pageImages() {
-      return this.$store.state.imagesCount;
+      return this.$store.getters.imagesCount;
     },
     selectedPageImages() {
-      return this.$store.state.selectedImagesCount;
+      return 0;
     },
   },
   methods: {
