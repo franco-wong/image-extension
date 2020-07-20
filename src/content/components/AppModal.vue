@@ -26,6 +26,15 @@ export default {
   name: 'AppModal',
   components: {
     ImageGallery,
+    AppModalButton,
+  },
+  data() {
+    return {
+      uploadToDrive: 'Upload to Drive',
+      uploadFunction: 'upload',
+      unselectAll: 'Unselect Images',
+      unselectFunction: 'unselect'
+    }
   },
   computed: {
     closeIcon() {
