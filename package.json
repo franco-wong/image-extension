@@ -9,6 +9,7 @@
     "stats": "npx webpack --profile --json > stats.json && npx webpack-bundle-analyzer stats.json"
   },
   "dependencies": {
+    "js-sha256": "^0.9.0",
     "vue": "^2.6.11",
     "vuex": "^3.4.0"
   },

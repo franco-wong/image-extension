@@ -11,10 +11,10 @@
     </div>
     <div class="modal__actions">
       <span>Images found: {{ pageImages }}</span>
-      &nbsp;
+      <br />
       <span>Selected images: {{ selectedPageImages }}</span>
-      <button @click="unselectFunction()">Unselect Images</button>
-      <button @click="uploadFunction()">Upload Images</button>
+      <button @click="unselect">Unselect Images</button>
+      <button @click="upload">Upload Images</button>
     </div>
   </div>
 </template>
@@ -26,61 +26,56 @@ export default {
   name: 'AppModal',
   components: {
     ImageGallery,
-    AppModalButton,
   },
   data() {
-    return {
-      uploadToDrive: 'Upload to Drive',
-      uploadFunction: 'upload',
-      unselectAll: 'Unselect Images',
-      unselectFunction: 'unselect'
-    }
+    return {};
   },
   computed: {
     closeIcon() {
       return chrome.extension.getURL('assets/close-icon.svg');
     },
     pageImages() {
-      return this.$store.state.imagesCount;
+      return this.$store.getters.imagesCount;
     },
     selectedPageImages() {
-      return this.$store.state.selectedImagesCount;
+      return 0;
     },
   },
   methods: {
     handleClose() {
       this.$store.commit('setShowApp', { status: false });
     },
-    unselectFunction() {
+    unselect() {
       this.$store.commit('setUnselectAllImages');
     },
     convertImageSetToArray() {
       // Convert the selectedImages set to an array of image Objects
       const imagesToUpload = this.$store.state.selectedImages;
       let imagesObj = [];
-      for(let image of imagesToUpload){
+
+      for (let image of imagesToUpload) {
         const imageJSON = JSON.parse(image);
-        let imagesChildObj = {}
+        let imagesChildObj = {};
         imagesChildObj.src = imageJSON.imgSrc;
         imagesChildObj.metadata = 'Temp Null';
         imagesObj.push(imagesChildObj);
       }
+
       return imagesObj;
     },
-    uploadFunction(){      
+    upload() {
       chrome.runtime.sendMessage(
         {
-          command: "UPLOAD_IMAGES",
+          command: 'UPLOAD_IMAGES',
           imagesObj: this.convertImageSetToArray(),
         },
-        (response) => 
-        {
-          console.log('Drive upload response:',response);
+        (response) => {
+          console.log('Drive upload response:', response);
           console.log('Unselecting all images.');
           this.$store.commit('setUnselectAllImages');
         }
       );
-    }
+    },
   },
 };
 </script>

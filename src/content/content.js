@@ -11,7 +11,7 @@ Vue.config.productionTip = false;
 Vue.use(Vuex);
 
 const vm = new Vue({
-  data: { showModal: false },
+  data: {},
   store: new Vuex.Store(StateTree),
   render(createElement) {
     return createElement(App, {});
