@@ -13,37 +13,22 @@
       <span>Images found: {{ pageImages }}</span>
       <br />
       <span>Selected images: {{ selectedPageImages }}</span>
-      <!-- <AppModalButton
-        :name="uploadToDrive"
-        :purpose="uploadFunction"
-        @function="task"
-      ></AppModalButton>
-      <AppModalButton
-        :name="unselectAll"
-        :purpose="unselectFunction"
-        @function="task"
-      ></AppModalButton> -->
+      <button @click="unselect">Unselect Images</button>
+      <button @click="upload">Upload Images</button>
     </div>
   </div>
 </template>
 
 <script>
 import ImageGallery from '@components/ImageGallery.vue';
-import AppModalButton from '@components/AppModalButton.vue';
 
 export default {
   name: 'AppModal',
   components: {
     ImageGallery,
-    AppModalButton,
   },
   data() {
-    return {
-      uploadToDrive: 'Upload to Drive',
-      uploadFunction: 'upload',
-      unselectAll: 'Unselect Images',
-      unselectFunction: 'unselect',
-    };
+    return {};
   },
   computed: {
     closeIcon() {
@@ -60,17 +45,14 @@ export default {
     handleClose() {
       this.$store.commit('setShowApp', { status: false });
     },
-    task(purpose) {
-      if (purpose === 'upload') {
-        this.upload();
-      } else if (purpose === 'unselect') {
-        this.$store.commit('setUnselectAllImages');
-      }
+    unselect() {
+      this.$store.commit('setUnselectAllImages');
     },
     convertImageSetToArray() {
       // Convert the selectedImages set to an array of image Objects
       const imagesToUpload = this.$store.state.selectedImages;
       let imagesObj = [];
+
       for (let image of imagesToUpload) {
         const imageJSON = JSON.parse(image);
         let imagesChildObj = {};
@@ -78,6 +60,7 @@ export default {
         imagesChildObj.metadata = 'Temp Null';
         imagesObj.push(imagesChildObj);
       }
+
       return imagesObj;
     },
     upload() {
@@ -131,11 +114,12 @@ export default {
 .modal__actions {
   margin-top: auto;
 
-  // button {
-  //   border-width:0;
-  //   background-color:red;
-  //   display: block;
-  //   margin-right: auto;
-  // }
+  button {
+    border-width: 0;
+    padding: 5px;
+    display: inline-block;
+    float: right;
+    margin-left: 3px;
+  }
 }
 </style>
