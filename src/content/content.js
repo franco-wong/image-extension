@@ -1,21 +1,28 @@
-import { inlineCSS } from "../utility/helper";
-import Sidebar from "../components/Sidebar";
+import Vue from 'vue';
+import Vuex from 'vuex';
+import App from './components/App.vue';
+import StateTree from './store/store';
 
-HTMLDivElement.prototype.css = inlineCSS;
+const root = document.createElement('div');
+root.setAttribute('id', 'gd-sync-image-upload-app');
+document.body.prepend(root);
 
-const sidebar = new Sidebar();
+Vue.config.productionTip = false;
+Vue.use(Vuex);
 
-sidebar.init().then(() => {
-  chrome.runtime.onMessage.addListener(onMessageListener);
-});
+const vm = new Vue({
+  data: { showModal: false },
+  store: new Vuex.Store(StateTree),
+  render(createElement) {
+    return createElement(App, {});
+  },
+}).$mount('#gd-sync-image-upload-app');
+
+chrome.runtime.onMessage.addListener(onMessageListener);
 
 /**
  * Listen on incoming messages coming from background
  */
 function onMessageListener(/* request, sender, cb */) {
-  if (!sidebar.isShown) {
-    sidebar.openSidebar();
-  } else {
-    sidebar.closeSidebar();
-  }
+  vm.$store.commit('setShowApp', { status: !vm.$store.state.showApp });
 }

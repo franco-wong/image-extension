@@ -1,18 +1,16 @@
 module.exports = {
+  extends: ['eslint:recommended', 'plugin:vue/recommended'],
+  parserOptions: {
+    ecmaVersion: 2018, // ES9
+    sourceType: 'module',
+    impliedStrict: true,
+  },
   env: {
     browser: true,
-    es6: true
-  },
-  globals: {
-    Atomics: 'readonly',
-    SharedArrayBuffer: 'readonly'
-  },
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module'
+    webextensions: true,
   },
   rules: {
-    "semi": ["error", "always"],
-    "brace-style": ["error", "1tbs", { "allowSingleLine": true }]
-  }
+    'vue/singleline-html-element-content-newline': 'off',
+    'vue/html-self-closing': 'off',
+  },
 }

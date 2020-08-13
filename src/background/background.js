@@ -1,7 +1,7 @@
-import { startUploading } from "./UploadImages";
+import { startUploading } from "./google-drive-apis";
 import { findAndCreateFolder } from "./RetrieveFolderID";
 import { launchWebAuthFlow, parseAuthResponse } from "./auth";
-import { identifyDomainInURL } from "../GetDomImageSource/IdentifyDomain";
+import { identifyDomainInURL, requestToSecondaryPageForImageSource } from "../GetDomImageSource/IdentifyDomain";
 import { RULE_SET } from "../GetDomImageSource/DomainRules";
 
 const now = new Date();

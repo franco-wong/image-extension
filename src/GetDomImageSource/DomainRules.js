@@ -52,6 +52,7 @@ export const RULE_SET = {
       // Once we get the response from the request, use class="site" to get a tag containing img source
     },
     {
+      // pinterest requires authentication to access the page with the page source
       'name':     "pinterest",
       'regex':    /www\.pinterest\.ca\/search\/pins\/\?q=/,
       'steps':    [""],
