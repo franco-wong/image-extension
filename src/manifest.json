@@ -1,11 +1,11 @@
 {
   "manifest_version": 2,
-  "name": "franco_extension",
+  "name": "GDrive Image Uploader",
   "version": "1.0.0",
-  "description": "TBD",
+  "description": "Uploads images founds on web pages directly to your GDrive account",
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "browser_action": {
-    "default_title": "Test",
+    "default_title": "GDrive Browser Action",
     "default_popup": ""
   },
   "background": {
@@ -13,7 +13,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*", "file:///*/*"],
+      "matches": ["http://*/*", "https://*/*"],
       "run_at": "document_idle",
       "js": ["content.js"]
     }
