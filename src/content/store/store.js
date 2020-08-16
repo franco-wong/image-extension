@@ -1,11 +1,17 @@
+import Vue from 'vue';
+
 export default {
   state: {
     imagesMap: {},
+    selectedImageMap: {},
     showApp: false,
   },
   getters: {
     imagesCount(state) {
       return Object.keys(state.imagesMap).length;
+    },
+    selectedImagesCount(state) {
+      return Object.keys(state.selectedImageMap).length;
     },
   },
   mutations: {
@@ -22,6 +28,18 @@ export default {
           break;
         }
       }
+    },
+    selectImage(state, payload) {
+      state.selectedImageMap = {
+        ...state.selectedImageMap,
+        [payload.id]: payload.element,
+      };
+    },
+    unselectImage(state, payload) {
+      Vue.delete(state.selectedImageMap, payload.id);
+    },
+    unselectAllImages(state) {
+      state.selectedImageMap = {};
     },
   },
   actions: {},

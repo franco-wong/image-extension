@@ -7,13 +7,13 @@
       @click="handleClose"
     />
     <div class="modal__gallery">
-      <ImageGallery />
+      <ImageGallery ref="gallery" />
     </div>
     <div class="modal__actions">
       <span>Images found: {{ pageImages }}</span>
       <br />
       <span>Selected images: {{ selectedPageImages }}</span>
-      <button @click="unselect">Unselect Images</button>
+      <button @click="unselectAllImages">Unselect Images</button>
       <button @click="upload">Upload Images</button>
     </div>
   </div>
@@ -38,43 +38,35 @@ export default {
       return this.$store.getters.imagesCount;
     },
     selectedPageImages() {
-      return 0;
+      return this.$store.getters.selectedImagesCount;
     },
   },
   methods: {
     handleClose() {
       this.$store.commit('setShowApp', { status: false });
     },
-    unselect() {
-      this.$store.commit('setUnselectAllImages');
-    },
-    convertImageSetToArray() {
-      // Convert the selectedImages set to an array of image Objects
-      const imagesToUpload = this.$store.state.selectedImages;
-      let imagesObj = [];
+    unselectAllImages() {
+      const elements = this.$refs.gallery.$el.querySelectorAll(
+        '.image-selected'
+      );
 
-      for (let image of imagesToUpload) {
-        const imageJSON = JSON.parse(image);
-        let imagesChildObj = {};
-        imagesChildObj.src = imageJSON.imgSrc;
-        imagesChildObj.metadata = 'Temp Null';
-        imagesObj.push(imagesChildObj);
+      for (const element of elements) {
+        element.classList.toggle('image-selected');
       }
 
-      return imagesObj;
+      this.$store.commit('unselectAllImages');
     },
     upload() {
-      chrome.runtime.sendMessage(
-        {
-          command: 'UPLOAD_IMAGES',
-          imagesObj: this.convertImageSetToArray(),
-        },
-        (response) => {
-          console.log('Drive upload response:', response);
-          console.log('Unselecting all images.');
-          this.$store.commit('setUnselectAllImages');
-        }
-      );
+      const stateImagesMap = this.$store.state.selectedImageMap;
+      const images = Object.values(stateImagesMap).map((img) => img.src);
+      const payload = {
+        command: 'UPLOAD_IMAGES',
+        images,
+      };
+
+      chrome.runtime.sendMessage(payload, (response) => {
+        console.log(response);
+      });
     },
   },
 };

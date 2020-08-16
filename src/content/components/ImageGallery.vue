@@ -21,7 +21,6 @@ import { sha256 } from 'js-sha256';
 
 export default {
   name: 'ImageGallery',
-  props: {},
   computed: {
     pageImages() {
       return this.$store.state.imagesMap;
@@ -70,7 +69,22 @@ export default {
       image.parentElement.parentElement.style.display = 'none';
     },
     handleImageClick({ currentTarget: imageElement }) {
+      const { id } = imageElement.dataset;
+      let type;
+
+      if (id in this.$store.state.selectedImageMap) {
+        type = 'unselectImage';
+      } else {
+        type = 'selectImage';
+      }
+
       imageElement.classList.toggle('image-selected');
+
+      this.$store.commit({
+        element: imageElement,
+        type,
+        id,
+      });
     },
     handleMutationRecords(node) {
       let foundImages = Array.from(node.querySelectorAll('img'));
