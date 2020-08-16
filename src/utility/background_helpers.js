@@ -26,12 +26,16 @@ const createGDriveFolder = (url, token) => {
 
 /**
  * Find and create a "Image Extension" folder if it doesn't current exist
+ * Reference: https://developers.google.com/drive/api/v3/ref-search-terms
  * @param {String} token - Access token to call GDrive APIs
  */
 export const retrieveGDriveFolderId = (token) => {
-  // Query url
   const url = new URL(GOOGLE_API.RequestUri);
-  url.searchParams.append('q', `mimeType='${GOOGLE_API.QueryFolder}'`);
+
+  url.searchParams.append(
+    'q',
+    `mimeType='${GOOGLE_API.QueryFolder}' and trashed = false`
+  );
 
   const options = {
     headers: {

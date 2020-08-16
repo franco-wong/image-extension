@@ -11,7 +11,6 @@
     </div>
     <div class="modal__actions">
       <span>Images found: {{ pageImages }}</span>
-      <br />
       <span>Selected images: {{ selectedPageImages }}</span>
       <button @click="unselectAllImages">Unselect Images</button>
       <button @click="upload">Upload Images</button>
@@ -104,14 +103,21 @@ export default {
 }
 
 .modal__actions {
+  display: flex;
   margin-top: auto;
 
+  span:first-of-type {
+    margin-right: 12px;
+  }
+
   button {
-    border-width: 0;
-    padding: 5px;
-    display: inline-block;
-    float: right;
-    margin-left: 3px;
+    margin-left: 2px;
+    padding: 4px;
+
+    &:first-of-type {
+      margin-left: auto;
+      margin-right: 4px;
+    }
   }
 }
 </style>
