@@ -71,7 +71,7 @@ chrome.browserAction.onClicked.addListener((tab) => {
       parseAuthResponse(response, accessToken, now);
     })
     .then(() => {
-      chrome.tabs.sendMessage(tab.id, '');
+      chrome.tabs.sendMessage(tab.id, { command: 'TOGGLE_APP_MODAL' });
     })
     .catch(console.error);
 });
