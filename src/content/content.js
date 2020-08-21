@@ -23,6 +23,10 @@ chrome.runtime.onMessage.addListener(onMessageListener);
 /**
  * Listen on incoming messages coming from background
  */
-function onMessageListener(/* request, sender, cb */) {
-  vm.$store.commit('setShowApp', { status: !vm.$store.state.showApp });
+function onMessageListener(request) {
+  switch (request.command) {
+    case 'TOGGLE_APP_MODAL':
+      vm.$store.commit('setShowApp', { status: !vm.$store.state.showApp });
+      break;
+  }
 }

@@ -12,8 +12,12 @@
     <div class="modal__actions">
       <span>Images found: {{ pageImages }}</span>
       <span>Selected images: {{ selectedPageImages }}</span>
-      <button @click="unselectAllImages">Unselect Images</button>
-      <button @click="upload">Upload Images</button>
+      <button @click="unselectAllImages" :disabled="areImageSelected">
+        Unselect Images
+      </button>
+      <button @click="upload" class="primary" :disabled="areImageSelected">
+        Upload Images
+      </button>
     </div>
   </div>
 </template>
@@ -38,6 +42,9 @@ export default {
     },
     selectedPageImages() {
       return this.$store.getters.selectedImagesCount;
+    },
+    areImageSelected() {
+      return !Boolean(this.selectedPageImages);
     },
   },
   methods: {
@@ -72,6 +79,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import './../styles/button';
+
 .modal {
   background-color: #fff;
   border-radius: 8px;
@@ -111,13 +120,17 @@ export default {
   }
 
   button {
-    margin-left: 2px;
-    padding: 4px;
+    @include button-root;
 
     &:first-of-type {
       margin-left: auto;
-      margin-right: 4px;
+      margin-right: 8px;
     }
   }
+}
+
+.primary {
+  color: #fff;
+  background-color: #1976d2;
 }
 </style>
