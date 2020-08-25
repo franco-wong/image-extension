@@ -1,4 +1,4 @@
-import { RULE_SET } from './DomainRules';
+import { RULE_SET } from './domain_rules';
 
 export function identifyDomainInURL(url){
   let source_domain = "'Not a search engine'";
