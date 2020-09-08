@@ -105,23 +105,41 @@ function getTodaysDate() {
 export function startUploading(
   accessToken,
   listOfImages,
-  pageSourceURL,
-  pageSourceTitle,
-  folderId
+  tabURL,
+  tabTitle,
+  folderId,
+  searchEngine
 ) {
   let imagePromisify = [];
   access_token = accessToken;
 
   for (const imageSrc of listOfImages) {
+    let { image, searchEngineImageSource, searchEngineImageTitle } = imageSrc;
+    let imageSource = tabURL;
+    let imageTitle = tabTitle;
+
+    // update the image source/title if the current page is a search engine page
+    if (searchEngine) {
+      if (searchEngine.name === 'yahoo' || searchEngine.name === 'bing') {
+        // make a request to the secondary page and send in the rules
+        let { title, source } = searchEngine.requestToSecondaryPageForImageSource(searchEngineImageSource);
+        searchEngineImageTitle = title;
+        searchEngineImageSource = source;
+        // return the imageSource and title like from google
+      }
+        imageSource = searchEngineImageSource;
+        imageTitle = searchEngineImageTitle;
+    } // otherwise use the current tab title and url
+
     const metaData = {
-      name: getTodaysDate() + pageSourceTitle,
-      // TODO: temporarily disable metadata until we figure out what to include
-      // description: buildMetaDataString(image.metadata, pageSourceURL),
+      name: getTodaysDate() + imageTitle + searchEngineImageTitle,
+      // add the imageSource to metadata
+      
       parents: [folderId],
     };
 
     imagePromisify.push(
-      getImageBlob(imageSrc)
+      getImageBlob(image)
         .then(getBase64Representation)
         .then((base64) => buildRequestBody(base64, metaData, folderId))
         .then(buildRequestHeader)

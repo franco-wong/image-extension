@@ -5,6 +5,7 @@ export default {
     imagesMap: {},
     selectedImageMap: {},
     showApp: false,
+    searchEngine: null,
   },
   getters: {
     imagesCount(state) {

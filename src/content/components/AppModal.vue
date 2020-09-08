@@ -64,14 +64,22 @@ export default {
     },
     upload() {
       const stateImagesMap = this.$store.state.selectedImageMap;
-      const images = Object.values(stateImagesMap).map((img) => img.src);
+      const searchEngine = this.$store.state.searchEngine;
+      const images = Object.values(stateImagesMap).map((img) => {
+        return { 
+          'imageSource': img.src,
+          'searchEnginePageSource': img.dataset.source,
+          'searchEnginePageTitle': img.alt };
+        });
       const payload = {
         command: 'UPLOAD_IMAGES',
         images,
+        domain_rules,
       };
 
       chrome.runtime.sendMessage(payload, (response) => {
         console.log(response);
+        this.unselectAllImages();
       });
     },
   },

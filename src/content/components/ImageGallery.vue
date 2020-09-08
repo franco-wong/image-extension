@@ -6,6 +6,7 @@
           :alt="image.alt"
           :src="resolveImageSource(image)"
           :data-id="uniqueId"
+          :data-source="resolvePageSource(image)"
           @click="handleImageClick"
           @error="handleImageError"
           @load="handleImageLoaded"
@@ -17,7 +18,17 @@
 
 <script>
 import { fetchPageImages } from '@utilities/helper';
+import { SearchEngine, identifyDomainInURL } from '@rules/rules';
 import { sha256 } from 'js-sha256';
+
+const pageUrl = window.location.toString();
+
+let searchEngineDomain = identifyDomainInURL(pageUrl);
+let searchEngine = null;
+
+if(searchEngineDomain){
+  searchEngine = new SearchEngine(pageUrl, searchEngineDomain);
+}
 
 export default {
   name: 'ImageGallery',
@@ -28,6 +39,7 @@ export default {
   },
   mounted() {
     // Create watcher
+    this.$store.state.searchEngine = searchEngine;
     this.observer = new MutationObserver((mutationList) => {
       for (let mutation of mutationList) {
         if (
@@ -62,7 +74,6 @@ export default {
       const spanValue = Math.ceil(
         (image.height + gridRowGap) / (gridAutoRows + gridRowGap)
       );
-
       tileElement.parentElement.style.gridRowEnd = `span ${spanValue}`;
     },
     handleImageError({ currentTarget: image }) {
@@ -89,10 +100,19 @@ export default {
     handleMutationRecords(node) {
       let foundImages = Array.from(node.querySelectorAll('img'));
 
-      if (!foundImages.length) return;
+      if (!(foundImages.length)) return;
+
+      let pageSource = pageUrl;
 
       // Converting array of elements into array of promises
       foundImages = foundImages.reduce((accum, image) => {
+        if (searchEngine) {
+          pageSource = searchEngine.navigateDOMToSource(image);
+          if (!pageSource) return accum;
+        }
+
+        image.dataset.pageSource = pageSource;
+
         const source = image.src || image.dataset.src;
         const hash = sha256(source);
 
@@ -123,7 +143,7 @@ export default {
               this.$store.commit('setImages', {
                 type: 'ADD',
                 element: image,
-                uniqueId: hash,
+                uniqueId: hash
               });
             }
           }
@@ -132,6 +152,9 @@ export default {
     },
     resolveImageSource(image) {
       return image.src || image.dataset.src;
+    },
+    resolvePageSource(image) {
+      return image.dataset.pageSource;
     },
   },
 };

@@ -28,6 +28,7 @@ module.exports = (env, argv) => {
         ['@components']: path.resolve(__dirname, 'src/content/components'),
         ['@styles']: path.resolve(__dirname, 'src/styles'),
         ['@utilities']: path.resolve(__dirname, 'src/utility'),
+        ['@rules']: path.resolve(__dirname, 'src/content/rules'),
       },
     },
     module: {

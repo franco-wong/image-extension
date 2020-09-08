@@ -34,22 +34,38 @@ export const RULE_SET = {
     {
       'name':     "google",
       'regex':    /www\.google\.(ca|com)\/search\?.*tbm=isch/,
-      "steps":    ["up", "up", "next"],
-      "selector": [""]
+      'steps':    ["up", "up", "next"],
+      'selector': ["Q4LuWd"]
+      // only select image nodes that has the class name 'Q4LuWd'
+      // OR
+      // the top bar of images of the page has the class 'BcUvif'
+      // the Related Search section (3 images) check to see if the image node has the class 'CBvv7vc'
     },
     {
       'name':     "bing",
       'regex':    /www\.bing\.com\/images\/search\?q=/,
-      'steps':    ["up", "up", "MakeRequest"],
-      'selector': [""]
+      'steps':    ["up", "up"],
+      'selector': ["mimg"],
+      'secondary': {
+        'titleRegex': '(?<=<a class="ptitle novid" title="View page" target="_blank" href=".*">).*(?=<\/a>)',
+        'urlRegex': '(?<=<a class="ptitle novid" title="View page" target="_blank" href=").*(?=">.*<\/a>)'
+      }
+      // only select images that has the class name 'mimg'
       // 
     },
     {
       'name':     "yahoo",
       'regex':    /images\.search\.yahoo\.com\/search\/images/,
-      'steps':    ["up", "MakeRequest"],
-      'selector': [""] 
+      'steps':    ["up"],
+      'selector': [],
+      'secondary': {
+        'titleRegex': /(?<=<em class="title">).*(?=<\/em>)/,
+        'urlRegex': /(?<=<a href=").*(?=" class="site")/
+      }
       // Once we get the response from the request, use class="site" to get a tag containing img source
+      // check the node at the ["up", "up"] node has the class name 'ld'
+      // OR
+      // just select all images shown on the page
     },
   ]
 };
