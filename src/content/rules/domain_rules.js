@@ -59,8 +59,8 @@ export const RULE_SET = {
       'steps':    ["up"],
       'selector': [],
       'secondary': {
-        'titleRegex': /(?<=<em class="title">).*(?=<\/em>)/,
-        'urlRegex': /(?<=<a href=").*(?=" class="site")/
+        'titleRegex': '(?<=<em class="title">).*(?=<\/em>)',
+        'urlRegex': '(?<=<a href=").*(?=" class="site")'
       }
       // Once we get the response from the request, use class="site" to get a tag containing img source
       // check the node at the ["up", "up"] node has the class name 'ld'

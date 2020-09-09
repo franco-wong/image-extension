@@ -26,8 +26,8 @@ export class SearchEngine {
         case "prev":
           current_tag = current_tag.previousElementSibling;
           break;
-        case "MakeRequest":
-          return [requestToSecondaryPageForImageSource(current_tag.href), ""];
+        // case "MakeRequest":
+        //   return [requestToSecondaryPageForImageSource(current_tag.href), ""];
       }
     }
     return current_tag;
@@ -41,18 +41,7 @@ export class SearchEngine {
     let current_tag = this.stepThroughDOM(this.domain_rules, img_tag);
 
     return current_tag.href;
-  }
-
-  // this function currently works for yahoo, where the image source can be found on a secondary page
-  requestToSecondaryPageForImageSource(){
-    return fetch(url)
-    .then(response => response.text())
-    .then(html => {
-      let imageTitle = html.match(/this.secondary.titleRegex/)[0];
-      let imageURL = html.match(/this.secondary.urlRegex/)[0];
-      return { imageTitle, imageURL };
-    });
-  }
+  } 
 }
 
 export function identifyDomainInURL(url){

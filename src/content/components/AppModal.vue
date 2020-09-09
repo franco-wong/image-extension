@@ -67,14 +67,14 @@ export default {
       const searchEngine = this.$store.state.searchEngine;
       const images = Object.values(stateImagesMap).map((img) => {
         return { 
-          'imageSource': img.src,
-          'searchEnginePageSource': img.dataset.source,
-          'searchEnginePageTitle': img.alt };
+          'image': img.src,
+          'searchEngineImageSource': img.dataset.source,
+          'searchEngineImageTitle': img.alt };
         });
       const payload = {
         command: 'UPLOAD_IMAGES',
         images,
-        domain_rules,
+        searchEngine,
       };
 
       chrome.runtime.sendMessage(payload, (response) => {

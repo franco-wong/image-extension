@@ -23,7 +23,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           folderId,
           request.searchEngine
         );
-
+        
         Promise.allSettled(imagePromisify).then(() => {
           sendResponse('All images has been uploaded!');
         });

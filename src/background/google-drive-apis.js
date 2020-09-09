@@ -63,12 +63,16 @@ function getBase64Representation(imageBlob) {
 }
 
 function getImageBlob(url) {
+
+  console.log('getimageblob');
   return window.fetch(url).then((response) => {
     return response.blob();
   });
 }
 
 function buildRequestHeader(requestBody) {
+
+  console.log('buildrequestheader');
   return {
     method: 'POST',
     headers: {
@@ -81,6 +85,7 @@ function buildRequestHeader(requestBody) {
 }
 
 function sendGoogleApiRequest(requestHeader) {
+  console.log('sendgoogleapirequest');
   return window
     .fetch(getFullUploadRequestURI(), requestHeader)
     .then((response) => {
@@ -88,9 +93,11 @@ function sendGoogleApiRequest(requestHeader) {
     });
 }
 
-function buildMetaDataString(metadata, pageSource) {
+function buildMetaDataString(metadata, imageSource) {
+  console.log('buildmetadatastring');
   metadata = JSON.parse(metadata);
-  return `Page Source: ${pageSource}\nHeight: ${metadata.height}px\nWidth: ${metadata.width}px`;
+  // return `Page Source: ${pageSource}\nHeight: ${metadata.height}px\nWidth: ${metadata.width}px`;
+  return `Image Source: ${imageSource}`
 }
 
 function getTodaysDate() {
@@ -100,6 +107,26 @@ function getTodaysDate() {
   let date = today.getDate();
   date = date > 9 ? date : '0' + date.toString();
   return `${today.getFullYear()}-${month}-${date}_`;
+}
+
+ function resolveImageTitleAndSource(searchEngine, imageSrc, imageURL, imageTitle){
+  if (searchEngine) {
+    if (searchEngine.domain === 'yahoo'/** || searchEngine.domain === 'bing' */) {
+      const searchEngineTitleRegex = new RegExp(searchEngine.secondaryPage.titleRegex);
+      const searchEngineSourceRegex = new RegExp(searchEngine.secondaryPage.urlRegex);
+      
+      return window
+      .fetch(imageSrc.searchEngineImageSource)
+      .then(response => response.text())
+      .then(html => {
+        let title = html.match(searchEngineTitleRegex)[0];
+        let url = html.match(searchEngineSourceRegex)[0];
+        return { imageTitle: title, imageURL: url };
+      });
+    }
+  }
+  return Promise.resolve({ imageTitle, imageURL })
+  
 }
 
 export function startUploading(
@@ -113,37 +140,33 @@ export function startUploading(
   let imagePromisify = [];
   access_token = accessToken;
 
-  for (const imageSrc of listOfImages) {
-    let { image, searchEngineImageSource, searchEngineImageTitle } = imageSrc;
-    let imageSource = tabURL;
-    let imageTitle = tabTitle;
-
-    // update the image source/title if the current page is a search engine page
-    if (searchEngine) {
-      if (searchEngine.name === 'yahoo' || searchEngine.name === 'bing') {
-        // make a request to the secondary page and send in the rules
-        let { title, source } = searchEngine.requestToSecondaryPageForImageSource(searchEngineImageSource);
-        searchEngineImageTitle = title;
-        searchEngineImageSource = source;
-        // return the imageSource and title like from google
-      }
-        imageSource = searchEngineImageSource;
-        imageTitle = searchEngineImageTitle;
-    } // otherwise use the current tab title and url
-
-    const metaData = {
-      name: getTodaysDate() + imageTitle + searchEngineImageTitle,
-      // add the imageSource to metadata
-      
+  let imageTitle = null;
+  let imageSource = null;
+    
+  function buildMetaData(){
+    console.log("buildmetadata");
+    return {  
+      name: getTodaysDate() + imageTitle,
+      description: buildMetaDataString(null, imageSource),
       parents: [folderId],
     };
+  }
+
+  for (const imageSrc of listOfImages) {
+    let { image } = imageSrc;
 
     imagePromisify.push(
-      getImageBlob(image)
-        .then(getBase64Representation)
-        .then((base64) => buildRequestBody(base64, metaData, folderId))
-        .then(buildRequestHeader)
-        .then(sendGoogleApiRequest)
+      resolveImageTitleAndSource(searchEngine, imageSrc, tabURL, tabTitle)
+      .then((result) => {      
+          imageTitle = result.imageTitle;
+          imageSource = result.imageURL;
+          return Promise.resolve(image)
+      })
+      .then(getImageBlob(image))
+      .then(getBase64Representation)
+      .then((base64) => buildRequestBody(base64, buildMetaData(), folderId))
+      .then(buildRequestHeader)
+      .then(sendGoogleApiRequest)
     );
   }
 
