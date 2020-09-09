@@ -63,7 +63,6 @@ function getBase64Representation(imageBlob) {
 }
 
 function getImageBlob(url) {
-
   console.log('getimageblob');
   return window.fetch(url).then((response) => {
     return response.blob();
@@ -71,7 +70,6 @@ function getImageBlob(url) {
 }
 
 function buildRequestHeader(requestBody) {
-
   console.log('buildrequestheader');
   return {
     method: 'POST',
@@ -97,7 +95,7 @@ function buildMetaDataString(metadata, imageSource) {
   console.log('buildmetadatastring');
   metadata = JSON.parse(metadata);
   // return `Page Source: ${pageSource}\nHeight: ${metadata.height}px\nWidth: ${metadata.width}px`;
-  return `Image Source: ${imageSource}`
+  return `Image Source: ${imageSource}`;
 }
 
 function getTodaysDate() {
@@ -109,24 +107,33 @@ function getTodaysDate() {
   return `${today.getFullYear()}-${month}-${date}_`;
 }
 
- function resolveImageTitleAndSource(searchEngine, imageSrc, imageURL, imageTitle){
+function resolveImageTitleAndSource(
+  searchEngine,
+  imageSrc,
+  imageURL,
+  imageTitle
+) {
   if (searchEngine) {
-    if (searchEngine.domain === 'yahoo'/** || searchEngine.domain === 'bing' */) {
-      const searchEngineTitleRegex = new RegExp(searchEngine.secondaryPage.titleRegex);
-      const searchEngineSourceRegex = new RegExp(searchEngine.secondaryPage.urlRegex);
-      
-      return window
-      .fetch(imageSrc.searchEngineImageSource)
-      .then(response => response.text())
-      .then(html => {
-        let title = html.match(searchEngineTitleRegex)[0];
-        let url = html.match(searchEngineSourceRegex)[0];
-        return { imageTitle: title, imageURL: url };
-      });
+    if (
+      searchEngine.domain === 'yahoo' /** || searchEngine.domain === 'bing' */
+    ) {
+      const searchEngineTitleRegex = new RegExp(
+        searchEngine.secondaryPage.titleRegex
+      );
+      const searchEngineSourceRegex = new RegExp(
+        searchEngine.secondaryPage.urlRegex
+      );
+
+      return fetch(imageSrc.searchEngineImageSource)
+        .then((response) => response.text())
+        .then((html) => {
+          let [title] = html.match(searchEngineTitleRegex);
+          let [url] = html.match(searchEngineSourceRegex);
+          return { imageTitle: title, imageURL: url };
+        });
     }
   }
-  return Promise.resolve({ imageTitle, imageURL })
-  
+  return Promise.resolve({ imageTitle, imageURL });
 }
 
 export function startUploading(
@@ -142,10 +149,10 @@ export function startUploading(
 
   let imageTitle = null;
   let imageSource = null;
-    
-  function buildMetaData(){
-    console.log("buildmetadata");
-    return {  
+
+  function buildMetaData() {
+    console.log('buildmetadata');
+    return {
       name: getTodaysDate() + imageTitle,
       description: buildMetaDataString(null, imageSource),
       parents: [folderId],
@@ -156,17 +163,19 @@ export function startUploading(
     let { image } = imageSrc;
 
     imagePromisify.push(
-      resolveImageTitleAndSource(searchEngine, imageSrc, tabURL, tabTitle)
-      .then((result) => {      
+      resolveImageTitleAndSource(searchEngine, imageSrc, tabURL, tabTitle).then(
+        (result) => {
           imageTitle = result.imageTitle;
           imageSource = result.imageURL;
-          return Promise.resolve(image)
-      })
-      .then(getImageBlob(image))
-      .then(getBase64Representation)
-      .then((base64) => buildRequestBody(base64, buildMetaData(), folderId))
-      .then(buildRequestHeader)
-      .then(sendGoogleApiRequest)
+          getImageBlob(image)
+            .then(getBase64Representation)
+            .then((base64) =>
+              buildRequestBody(base64, buildMetaData(), folderId)
+            )
+            .then(buildRequestHeader)
+            .then(sendGoogleApiRequest);
+        }
+      )
     );
   }
 
