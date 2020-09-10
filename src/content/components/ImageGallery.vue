@@ -3,7 +3,7 @@
     <div v-for="(image, uniqueId) in pageImages" :key="uniqueId">
       <div>
         <img
-          :alt="image.alt"
+          :alt="resolveImageAlt(image)"
           :src="resolveImageSource(image)"
           :data-id="uniqueId"
           :data-source="resolvePageSource(image)"
@@ -155,6 +155,9 @@ export default {
     },
     resolvePageSource(image) {
       return image.dataset.pageSource;
+    },
+    resolveImageAlt(image) {
+      return searchEngine.domain === 'yahoo' ? image.parentElement.getAttribute('aria-label') : image.alt;
     },
   },
 };

@@ -63,14 +63,12 @@ function getBase64Representation(imageBlob) {
 }
 
 function getImageBlob(url) {
-  console.log('getimageblob');
   return window.fetch(url).then((response) => {
     return response.blob();
   });
 }
 
 function buildRequestHeader(requestBody) {
-  console.log('buildrequestheader');
   return {
     method: 'POST',
     headers: {
@@ -83,7 +81,6 @@ function buildRequestHeader(requestBody) {
 }
 
 function sendGoogleApiRequest(requestHeader) {
-  console.log('sendgoogleapirequest');
   return window
     .fetch(getFullUploadRequestURI(), requestHeader)
     .then((response) => {
@@ -92,7 +89,6 @@ function sendGoogleApiRequest(requestHeader) {
 }
 
 function buildMetaDataString(metadata, imageSource) {
-  console.log('buildmetadatastring');
   metadata = JSON.parse(metadata);
   // return `Page Source: ${pageSource}\nHeight: ${metadata.height}px\nWidth: ${metadata.width}px`;
   return `Image Source: ${imageSource}`;
@@ -114,6 +110,7 @@ function resolveImageTitleAndSource(
   imageTitle
 ) {
   if (searchEngine) {
+    // this extracts the image's page title and page source if the search engine has the source on a second page view
     if (
       searchEngine.domain === 'yahoo' /** || searchEngine.domain === 'bing' */
     ) {
@@ -132,7 +129,11 @@ function resolveImageTitleAndSource(
           return { imageTitle: title, imageURL: url };
         });
     }
+
+    // if the search engine displays the original page title and source, just return it
+    return { imageTitle: imageSrc.searchEngineImageTitle, imageURL: imageSrc.searchEngineImageSource };
   }
+  // this returns the image's page title and page source if the domain is not the images of a search engine
   return Promise.resolve({ imageTitle, imageURL });
 }
 
@@ -150,15 +151,6 @@ export function startUploading(
   let imageTitle = null;
   let imageSource = null;
 
-  function buildMetaData() {
-    console.log('buildmetadata');
-    return {
-      name: getTodaysDate() + imageTitle,
-      description: buildMetaDataString(null, imageSource),
-      parents: [folderId],
-    };
-  }
-
   for (const imageSrc of listOfImages) {
     let { image } = imageSrc;
 
@@ -167,10 +159,17 @@ export function startUploading(
         (result) => {
           imageTitle = result.imageTitle;
           imageSource = result.imageURL;
+
+          let metaData = {
+            name: getTodaysDate() + imageTitle,
+            description: buildMetaDataString(null, imageSource),
+            parents: [folderId],
+          };
+
           getImageBlob(image)
             .then(getBase64Representation)
             .then((base64) =>
-              buildRequestBody(base64, buildMetaData(), folderId)
+              buildRequestBody(base64, metaData, folderId)
             )
             .then(buildRequestHeader)
             .then(sendGoogleApiRequest);
