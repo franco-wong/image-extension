@@ -1,22 +1,22 @@
 <template>
   <div class="image-gallery" ref="gallery">
     <div v-for="(image, uniqueId) in pageImages" :key="uniqueId">
-      <div>
-        <img
-          :alt="image.alt"
-          :src="resolveImageSource(image)"
-          :data-id="uniqueId"
-          @click="handleImageClick"
-          @error="handleImageError"
-          @load="handleImageLoaded"
-        />
-      </div>
+      <img
+        :alt="resolveImageAlt(image)"
+        :src="resolveImageSource(image)"
+        :data-id="uniqueId"
+        :data-source="resolvePageSource(image)"
+        @click="handleImageClick"
+        @error="handleImageError"
+        @load="handleImageLoaded"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import { fetchPageImages } from '@utilities/helper';
+import { SearchEngine, identifyDomainInURL } from '@rules/rules';
 import { sha256 } from 'js-sha256';
 
 export default {
@@ -26,14 +26,21 @@ export default {
       return this.$store.state.imagesMap;
     },
   },
+  created() {
+    // Discover domain and associated rule
+    const url = window.location.href;
+    const domain = identifyDomainInURL(url);
+
+    if (domain) {
+      const searchEngine = new SearchEngine(url, domain);
+      this.$store.commit('setSearchEngine', { searchEngine });
+    }
+  },
   mounted() {
     // Create watcher
     this.observer = new MutationObserver((mutationList) => {
       for (let mutation of mutationList) {
-        if (
-          // mutation.target.className !== 'image-gallery' && // Avoid infinite observer calls from removing image tiles
-          mutation.type === 'childList'
-        ) {
+        if (mutation.type === 'childList') {
           [].forEach.call(mutation.target.children, this.handleMutationRecords);
         }
       }
@@ -62,7 +69,6 @@ export default {
       const spanValue = Math.ceil(
         (image.height + gridRowGap) / (gridAutoRows + gridRowGap)
       );
-
       tileElement.parentElement.style.gridRowEnd = `span ${spanValue}`;
     },
     handleImageError({ currentTarget: image }) {
@@ -91,8 +97,19 @@ export default {
 
       if (!foundImages.length) return;
 
+      let pageSource = window.location.href;
+
       // Converting array of elements into array of promises
       foundImages = foundImages.reduce((accum, image) => {
+        if (this.$store.state.searchEngine) {
+          pageSource = this.$store.state.searchEngine.navigateDOMToSource(
+            image
+          );
+          if (!pageSource) return accum;
+        }
+
+        image.dataset.pageSource = pageSource;
+
         const source = image.src || image.dataset.src;
         const hash = sha256(source);
 
@@ -132,6 +149,18 @@ export default {
     },
     resolveImageSource(image) {
       return image.src || image.dataset.src;
+    },
+    resolvePageSource(image) {
+      return image.dataset.pageSource;
+    },
+    resolveImageAlt(image) {
+      const searchEngine = { ...this.$store.state.searchEngine };
+
+      if (searchEngine && searchEngine.domain === 'yahoo') {
+        return image.parentElement.getAttribute('aria-label');
+      } else {
+        return image.alt;
+      }
     },
   },
 };

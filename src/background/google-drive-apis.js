@@ -81,16 +81,15 @@ function buildRequestHeader(requestBody) {
 }
 
 function sendGoogleApiRequest(requestHeader) {
-  return window
-    .fetch(getFullUploadRequestURI(), requestHeader)
-    .then((response) => {
-      console.log(response);
-    });
+  return fetch(getFullUploadRequestURI(), requestHeader).then((response) => {
+    console.log(response);
+  });
 }
 
-function buildMetaDataString(metadata, pageSource) {
+function buildMetaDataString(metadata, imageSource) {
   metadata = JSON.parse(metadata);
-  return `Page Source: ${pageSource}\nHeight: ${metadata.height}px\nWidth: ${metadata.width}px`;
+  // return `Page Source: ${pageSource}\nHeight: ${metadata.height}px\nWidth: ${metadata.width}px`;
+  return `Image Source: ${imageSource}`;
 }
 
 function getTodaysDate() {
@@ -102,30 +101,77 @@ function getTodaysDate() {
   return `${today.getFullYear()}-${month}-${date}_`;
 }
 
+function resolveImageTitleAndSource(
+  searchEngine,
+  imageSrc,
+  imageURL,
+  imageTitle
+) {
+  if (searchEngine) {
+    // This extracts the image's page title and page source if the search engine has the source on a second page view
+    const { titleRegex, urlRegex } = searchEngine.secondaryPage;
+    if (searchEngine.domain === 'yahoo') {
+      const se = {
+        rSource: new RegExp(urlRegex),
+        rTitle: new RegExp(titleRegex),
+      };
+
+      return fetch(imageSrc.searchEngineImageSource)
+        .then((response) => response.text())
+        .then((html) => {
+          let [title] = html.match(se.rTitle);
+          let [url] = html.match(se.rSource);
+          return { imageTitle: title, imageURL: url };
+        });
+    }
+
+    // If the search engine displays the original page title and source, just return it
+    return Promise.resolve({
+      imageTitle: imageSrc.searchEngineImageTitle,
+      imageURL: imageSrc.searchEngineImageSource,
+    });
+  }
+
+  // This returns the image's page title and page source if the domain is not the images of a search engine
+  return Promise.resolve({ imageTitle, imageURL });
+}
+
 export function startUploading(
   accessToken,
   listOfImages,
-  pageSourceURL,
-  pageSourceTitle,
-  folderId
+  tabURL,
+  tabTitle,
+  folderId,
+  searchEngine
 ) {
   let imagePromisify = [];
   access_token = accessToken;
 
+  let imageTitle = null;
+  let imageSource = null;
+
   for (const imageSrc of listOfImages) {
-    const metaData = {
-      name: getTodaysDate() + pageSourceTitle,
-      // TODO: temporarily disable metadata until we figure out what to include
-      // description: buildMetaDataString(image.metadata, pageSourceURL),
-      parents: [folderId],
-    };
+    let { image } = imageSrc;
 
     imagePromisify.push(
-      getImageBlob(imageSrc)
-        .then(getBase64Representation)
-        .then((base64) => buildRequestBody(base64, metaData, folderId))
-        .then(buildRequestHeader)
-        .then(sendGoogleApiRequest)
+      resolveImageTitleAndSource(searchEngine, imageSrc, tabURL, tabTitle).then(
+        (result) => {
+          imageTitle = result.imageTitle;
+          imageSource = result.imageURL;
+
+          let metaData = {
+            name: getTodaysDate() + imageTitle,
+            description: buildMetaDataString(null, imageSource),
+            parents: [folderId],
+          };
+
+          getImageBlob(image)
+            .then(getBase64Representation)
+            .then((base64) => buildRequestBody(base64, metaData, folderId))
+            .then(buildRequestHeader)
+            .then(sendGoogleApiRequest);
+        }
+      )
     );
   }
 

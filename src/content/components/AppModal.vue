@@ -63,15 +63,23 @@ export default {
       this.$store.commit('unselectAllImages');
     },
     upload() {
-      const stateImagesMap = this.$store.state.selectedImageMap;
-      const images = Object.values(stateImagesMap).map((img) => img.src);
+      const { searchEngine, selectedImageMap } = this.$store.state;
+      const images = Object.values(selectedImageMap).map((img) => {
+        return {
+          image: img.src,
+          searchEngineImageSource: img.dataset.source,
+          searchEngineImageTitle: img.alt,
+        };
+      });
       const payload = {
         command: 'UPLOAD_IMAGES',
         images,
+        searchEngine,
       };
 
       chrome.runtime.sendMessage(payload, (response) => {
         console.log(response);
+        this.unselectAllImages();
       });
     },
   },

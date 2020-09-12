@@ -4,6 +4,7 @@ export default {
   state: {
     imagesMap: {},
     selectedImageMap: {},
+    searchEngine: null,
     showApp: false,
   },
   getters: {
@@ -15,6 +16,9 @@ export default {
     },
   },
   mutations: {
+    setSearchEngine(state, payload) {
+      state.searchEngine = payload.searchEngine;
+    },
     setShowApp(state, payload) {
       state.showApp = payload.status;
     },
