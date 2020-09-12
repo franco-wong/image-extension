@@ -4,8 +4,8 @@ export default {
   state: {
     imagesMap: {},
     selectedImageMap: {},
-    showApp: false,
     searchEngine: null,
+    showApp: false,
   },
   getters: {
     imagesCount(state) {
@@ -16,6 +16,10 @@ export default {
     },
   },
   mutations: {
+    setSearchEngine(state, payload) {
+      console.log(payload.searchEngine);
+      state.searchEngine = payload.searchEngine;
+    },
     setShowApp(state, payload) {
       state.showApp = payload.status;
     },

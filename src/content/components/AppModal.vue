@@ -63,14 +63,15 @@ export default {
       this.$store.commit('unselectAllImages');
     },
     upload() {
-      const stateImagesMap = this.$store.state.selectedImageMap;
-      const searchEngine = this.$store.state.searchEngine;
+      const stateImagesMap = { ...this.$store.state.selectedImageMap };
+      const searchEngine = { ...this.$store.state.searchEngine };
       const images = Object.values(stateImagesMap).map((img) => {
-        return { 
-          'image': img.src,
-          'searchEngineImageSource': img.dataset.source,
-          'searchEngineImageTitle': img.alt };
-        });
+        return {
+          image: img.src,
+          searchEngineImageSource: img.dataset.source,
+          searchEngineImageTitle: img.alt,
+        };
+      });
       const payload = {
         command: 'UPLOAD_IMAGES',
         images,

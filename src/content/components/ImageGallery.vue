@@ -1,17 +1,15 @@
 <template>
   <div class="image-gallery" ref="gallery">
     <div v-for="(image, uniqueId) in pageImages" :key="uniqueId">
-      <div>
-        <img
-          :alt="resolveImageAlt(image)"
-          :src="resolveImageSource(image)"
-          :data-id="uniqueId"
-          :data-source="resolvePageSource(image)"
-          @click="handleImageClick"
-          @error="handleImageError"
-          @load="handleImageLoaded"
-        />
-      </div>
+      <img
+        :alt="resolveImageAlt(image)"
+        :src="resolveImageSource(image)"
+        :data-id="uniqueId"
+        :data-source="resolvePageSource(image)"
+        @click="handleImageClick"
+        @error="handleImageError"
+        @load="handleImageLoaded"
+      />
     </div>
   </div>
 </template>
@@ -21,15 +19,6 @@ import { fetchPageImages } from '@utilities/helper';
 import { SearchEngine, identifyDomainInURL } from '@rules/rules';
 import { sha256 } from 'js-sha256';
 
-const pageUrl = window.location.toString();
-
-let searchEngineDomain = identifyDomainInURL(pageUrl);
-let searchEngine = null;
-
-if(searchEngineDomain){
-  searchEngine = new SearchEngine(pageUrl, searchEngineDomain);
-}
-
 export default {
   name: 'ImageGallery',
   computed: {
@@ -37,15 +26,24 @@ export default {
       return this.$store.state.imagesMap;
     },
   },
+  created() {
+    // Domain info
+    let searchEngineDomain = identifyDomainInURL(window.location.href);
+
+    if (searchEngineDomain) {
+      console.log('WENT INSIDE HERE');
+      const searchEngine = new SearchEngine(
+        window.location.href,
+        searchEngineDomain
+      );
+      this.$store.commit('setSearchEngine', { searchEngine });
+    }
+  },
   mounted() {
     // Create watcher
-    this.$store.state.searchEngine = searchEngine;
     this.observer = new MutationObserver((mutationList) => {
       for (let mutation of mutationList) {
-        if (
-          // mutation.target.className !== 'image-gallery' && // Avoid infinite observer calls from removing image tiles
-          mutation.type === 'childList'
-        ) {
+        if (mutation.type === 'childList') {
           [].forEach.call(mutation.target.children, this.handleMutationRecords);
         }
       }
@@ -100,14 +98,16 @@ export default {
     handleMutationRecords(node) {
       let foundImages = Array.from(node.querySelectorAll('img'));
 
-      if (!(foundImages.length)) return;
+      if (!foundImages.length) return;
 
-      let pageSource = pageUrl;
+      let pageSource = window.location.href;
 
       // Converting array of elements into array of promises
       foundImages = foundImages.reduce((accum, image) => {
-        if (searchEngine) {
-          pageSource = searchEngine.navigateDOMToSource(image);
+        if (this.$store.state.searchEngine) {
+          pageSource = this.$store.state.searchEngine.navigateDOMToSource(
+            image
+          );
           if (!pageSource) return accum;
         }
 
@@ -143,7 +143,7 @@ export default {
               this.$store.commit('setImages', {
                 type: 'ADD',
                 element: image,
-                uniqueId: hash
+                uniqueId: hash,
               });
             }
           }
@@ -157,7 +157,13 @@ export default {
       return image.dataset.pageSource;
     },
     resolveImageAlt(image) {
-      return searchEngine.domain === 'yahoo' ? image.parentElement.getAttribute('aria-label') : image.alt;
+      const searchEngine = { ...this.$store.state.searchEngine };
+
+      if (searchEngine && searchEngine.domain === 'yahoo') {
+        return image.parentElement.getAttribute('aria-label');
+      } else {
+        return image.alt;
+      }
     },
   },
 };
