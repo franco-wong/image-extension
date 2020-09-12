@@ -27,15 +27,12 @@ export default {
     },
   },
   created() {
-    // Domain info
-    let searchEngineDomain = identifyDomainInURL(window.location.href);
+    // Discover domain and associated rule
+    const url = window.location.href;
+    const domain = identifyDomainInURL(url);
 
-    if (searchEngineDomain) {
-      console.log('WENT INSIDE HERE');
-      const searchEngine = new SearchEngine(
-        window.location.href,
-        searchEngineDomain
-      );
+    if (domain) {
+      const searchEngine = new SearchEngine(url, domain);
       this.$store.commit('setSearchEngine', { searchEngine });
     }
   },

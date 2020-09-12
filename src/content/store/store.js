@@ -17,7 +17,6 @@ export default {
   },
   mutations: {
     setSearchEngine(state, payload) {
-      console.log(payload.searchEngine);
       state.searchEngine = payload.searchEngine;
     },
     setShowApp(state, payload) {

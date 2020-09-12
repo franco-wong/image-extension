@@ -63,9 +63,8 @@ export default {
       this.$store.commit('unselectAllImages');
     },
     upload() {
-      const stateImagesMap = { ...this.$store.state.selectedImageMap };
-      const searchEngine = { ...this.$store.state.searchEngine };
-      const images = Object.values(stateImagesMap).map((img) => {
+      const { searchEngine, selectedImageMap } = this.$store.state;
+      const images = Object.values(selectedImageMap).map((img) => {
         return {
           image: img.src,
           searchEngineImageSource: img.dataset.source,

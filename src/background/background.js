@@ -14,7 +14,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.command) {
     case 'UPLOAD_IMAGES':
       retrieveGDriveFolderId(accessToken.code).then((folderId) => {
-
         const imagePromisify = startUploading(
           accessToken.code,
           request.images,
@@ -23,7 +22,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           folderId,
           request.searchEngine
         );
-        
+
         Promise.allSettled(imagePromisify).then(() => {
           sendResponse('All images has been uploaded!');
         });
@@ -41,8 +40,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  */
 chrome.browserAction.onClicked.addListener((tab) => {
   const epochTime = Math.round(now.getTime() / 1000);
-
-  // requestToSecondaryPageForImageSource().then((result) => console.log(result));
 
   if (epochTime < accessToken.expiry) {
     chrome.tabs.sendMessage(tab.id, { command: 'TOGGLE_APP_MODAL' });

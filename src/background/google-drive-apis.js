@@ -81,11 +81,9 @@ function buildRequestHeader(requestBody) {
 }
 
 function sendGoogleApiRequest(requestHeader) {
-  return window
-    .fetch(getFullUploadRequestURI(), requestHeader)
-    .then((response) => {
-      console.log(response);
-    });
+  return fetch(getFullUploadRequestURI(), requestHeader).then((response) => {
+    console.log(response);
+  });
 }
 
 function buildMetaDataString(metadata, imageSource) {
@@ -110,30 +108,31 @@ function resolveImageTitleAndSource(
   imageTitle
 ) {
   if (searchEngine) {
-    // this extracts the image's page title and page source if the search engine has the source on a second page view
-    if (
-      searchEngine.domain === 'yahoo' /** || searchEngine.domain === 'bing' */
-    ) {
-      const searchEngineTitleRegex = new RegExp(
-        searchEngine.secondaryPage.titleRegex
-      );
-      const searchEngineSourceRegex = new RegExp(
-        searchEngine.secondaryPage.urlRegex
-      );
+    // This extracts the image's page title and page source if the search engine has the source on a second page view
+    const { titleRegex, urlRegex } = searchEngine.secondaryPage;
+    if (searchEngine.domain === 'yahoo') {
+      const se = {
+        rSource: new RegExp(urlRegex),
+        rTitle: new RegExp(titleRegex),
+      };
 
       return fetch(imageSrc.searchEngineImageSource)
         .then((response) => response.text())
         .then((html) => {
-          let [title] = html.match(searchEngineTitleRegex);
-          let [url] = html.match(searchEngineSourceRegex);
+          let [title] = html.match(se.rTitle);
+          let [url] = html.match(se.rSource);
           return { imageTitle: title, imageURL: url };
         });
     }
 
-    // if the search engine displays the original page title and source, just return it
-    return { imageTitle: imageSrc.searchEngineImageTitle, imageURL: imageSrc.searchEngineImageSource };
+    // If the search engine displays the original page title and source, just return it
+    return Promise.resolve({
+      imageTitle: imageSrc.searchEngineImageTitle,
+      imageURL: imageSrc.searchEngineImageSource,
+    });
   }
-  // this returns the image's page title and page source if the domain is not the images of a search engine
+
+  // This returns the image's page title and page source if the domain is not the images of a search engine
   return Promise.resolve({ imageTitle, imageURL });
 }
 
@@ -168,9 +167,7 @@ export function startUploading(
 
           getImageBlob(image)
             .then(getBase64Representation)
-            .then((base64) =>
-              buildRequestBody(base64, metaData, folderId)
-            )
+            .then((base64) => buildRequestBody(base64, metaData, folderId))
             .then(buildRequestHeader)
             .then(sendGoogleApiRequest);
         }
