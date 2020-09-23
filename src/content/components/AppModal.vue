@@ -106,7 +106,7 @@ export default {
   top: 50%;
   transform: translate(-50%, -50%);
   width: 800px;
-  z-index: 10002;
+  z-index: 2147483647;
 }
 
 .modal__close-icon {

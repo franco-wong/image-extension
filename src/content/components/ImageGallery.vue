@@ -1,15 +1,17 @@
 <template>
   <div class="image-gallery" ref="gallery">
     <div v-for="(image, uniqueId) in pageImages" :key="uniqueId">
-      <img
-        :alt="resolveImageAlt(image)"
-        :src="resolveImageSource(image)"
-        :data-id="uniqueId"
-        :data-source="resolvePageSource(image)"
-        @click="handleImageClick"
-        @error="handleImageError"
-        @load="handleImageLoaded"
-      />
+      <div>
+        <img
+          :alt="resolveImageAlt(image)"
+          :src="resolveImageSource(image)"
+          :data-id="uniqueId"
+          :data-source="resolvePageSource(image)"
+          @click="handleImageClick"
+          @error="handleImageError"
+          @load="handleImageLoaded"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -50,6 +52,8 @@ export default {
       childList: true,
       subtree: true,
     });
+    // Scrape what's shown on the page so far
+    this.handleMutationRecords(document);
   },
   data() {
     return {

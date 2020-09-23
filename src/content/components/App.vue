@@ -58,7 +58,7 @@ export default {
   position: fixed;
   right: 0;
   top: 0;
-  z-index: 10001;
+  z-index: calc(2147483647 - 1);
 }
 
 .fade-enter-active,
