@@ -8,7 +8,7 @@ export function launchWebAuthFlow() {
     scope: GOOGLE_API.Scope,
   };
   const queryParams = new URLSearchParams(Object.entries(params)).toString();
-
+  console.log(params.redirect_uri);
   return new Promise((resolve, reject) => {
     chrome.identity.launchWebAuthFlow(
       {
