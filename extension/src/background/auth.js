@@ -15,6 +15,7 @@ export function launchWebAuthFlow() {
     code_challenge_method: 'S256',
   };
   const queryParams = new URLSearchParams(Object.entries(params)).toString();
+<<<<<<< HEAD
   const config = {
     url: `${GOOGLE_API.AuthDomain}?${queryParams}`,
     interactive: true,
@@ -25,6 +26,20 @@ export function launchWebAuthFlow() {
     chrome.identity.launchWebAuthFlow(config, (response) => {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError.message);
+=======
+  console.log(params.redirect_uri);
+  return new Promise((resolve, reject) => {
+    chrome.identity.launchWebAuthFlow(
+      {
+        url: `${GOOGLE_API.AuthDomain}?${queryParams}`,
+        interactive: true,
+      },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError.message);
+        }
+        resolve(response);
+>>>>>>> Set up initial configuration of server
       }
 
       resolve(response);
