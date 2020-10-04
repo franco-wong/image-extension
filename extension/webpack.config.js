@@ -6,6 +6,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const ExtensionReloader = require('webpack-extension-reloader');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { EnvironmentPlugin, DefinePlugin } = require('webpack');
 
 module.exports = (env, argv) => {
   const isDevelopment = argv.mode === 'development';
@@ -66,8 +67,16 @@ module.exports = (env, argv) => {
     ],
   };
 
-  // To retrigger build on code changes during development
   if (isDevelopment) {
+    // Add env variable during dev mode to toggle certain behaviour
+    const url = isDevelopment ? 'localhost:8080' : 'www.google.ca';
+    webpackConfig.plugins.push(
+      new DefinePlugin({
+        WP_TOKEN_ENDPOINT: JSON.stringify(url),
+      })
+    );
+
+    // To retrigger build on code changes during development
     webpackConfig.plugins.push(
       new ExtensionReloader({
         port: 9090, // Which port use to create the server
