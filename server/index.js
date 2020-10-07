@@ -3,72 +3,67 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config(); // can now use process.env.CLIENT_SECRET
 }
 const express = require('express')
-const bodyParser = require('body-parser')
-const crypto = require('crypto');
-const { response } = require('express');
+// const bodyParser = require('body-parser')
+const fetch = require('node-fetch');
+const cors = require('cors');
 
 const app = express()
-const port = 3001
+const port = 3002
 
 const AuthDomain = "https://accounts.google.com/o/oauth2/auth"
-
+app.use(cors())
+app.use(express.json());
 // var jsonParser = bodyParser.json()
 // var urlencodedParser = bodyParser.urlencoded({ extended: false })
-
-let auth_map = new Map()
 
 app.get('/', (req, res) => {
   res.send('')
 })
 
 app.post('/token',  function (req, res) {
-  console.log(req.query)
-
-  if (!checkRequestParameters(req.query)) {
-    // return error
-  }
-
-  let newParams = '';
-  newParams += `&client_id=${process.env.CLIENT_ID}`;
-  newParams += `&redirect_uri=${encodeURI(
-    req.query.redirect_uri
-  )}`;
-  newParams += `&grant_type=authorization_code`;
-  newParams += `&code=${req.query.code}`;
-  newParams += `&code_verifier=${req.query.code_verifier}`;
-  newParams += `&client_secret=${process.env.CLIENT_SECRET}`;
-
-  // fetch('https://oauth2.googleapis.com/token', {
-  //   method: 'post',
-  //   body: newParams,
-  //   headers: { 'Content-type': 'application/x-www-form-urlencoded' },
-  // })
-  //   .then((newResponse) => {
-  //     return newResponse.json()
-  //   })
-  //   .then((response) => {
-  //     return response
-  //   })
-  res.send('hello')
+  console.log(req.body)
+  let result = checkRequestParameters(req.body);
+  if (result === 200) {
+		let newParams = '';
+		newParams += `client_id=${process.env.CLIENT_ID}`;
+		newParams += `&redirect_uri=${encodeURI(
+			req.body.redirect_uri
+		)}`;
+		newParams += `&grant_type=authorization_code`;
+		newParams += `&code=${req.body.code}`;
+		newParams += `&code_verifier=${req.body.code_verifier}`;
+		newParams += `&client_secret=${process.env.CLIENT_SECRET}`;
+	
+		fetch('https://oauth2.googleapis.com/token', {
+		  method: 'post',
+		  body: newParams,
+		  headers: { 'Content-type': 'application/x-www-form-urlencoded' },
+		})
+			.then((newResponse) => newResponse)
+			.then()
+	} else { // return Parameter error
+		console.log("400 Bad request")
+    res.send(`400 Bad Request`)
+	}
 })
 
 /**
  * Error Codes
  * 
- * 404 - 
- * 401 - Unauthorized request
+ * 400 - bad request
  * 200 - request success
- * Default - 500 - Internal Server Error
  */
-const REQUIRED_PARAMS = ["redirect_uri", "grant_type", "code", "code_verifier", "content_type"]
+const REQUIRED_PARAMS = ['redirect_uri', 'grant_type', 'code', 'code_verifier']
 
-function checkRequestParameters(parameters) {
-  if (parameters.length !== 5) return false
+function checkRequestParameters(body) {
+	if (Object.keys(body).length !== 4) {
+		return false
+	}
   // content type === application/json
-  for (let required_param in required_params) {
-    if (required_param in parameters) continue;
-    return false; // will expand on the errors
-  }
+  for (let required_param of REQUIRED_PARAMS) {
+		if (Object.keys(body).indexOf(required_param) === -1) return 400
+	}
+	return 200; 
 }
 
 app.listen(port, () => {

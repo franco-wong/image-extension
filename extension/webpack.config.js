@@ -69,7 +69,7 @@ module.exports = (env, argv) => {
 
   if (isDevelopment) {
     // Add env variable during dev mode to toggle certain behaviour
-    const url = isDevelopment ? 'localhost:8080' : 'www.google.ca';
+    const url = isDevelopment ? 'http://localhost:3002/token' : 'www.google.ca';
     webpackConfig.plugins.push(
       new DefinePlugin({
         WP_TOKEN_ENDPOINT: JSON.stringify(url),
