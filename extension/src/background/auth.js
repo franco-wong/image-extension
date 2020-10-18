@@ -5,14 +5,15 @@ import {
 } from '@utilities/background_helpers';
 
 export function launchWebAuthFlow() {
+  const [codeVerifier, codeChallenge] = generateCodeChallenge(); // Returns a tuple
   const params = {
     client_id: GOOGLE_API.ClientId,
     redirect_uri: chrome.identity.getRedirectURL(),
     response_type: 'code',
     scope: GOOGLE_API.Scope,
     state: generateRandomString(),
-    code_challenge: generateCodeChallenge(),
-    code_challenge_method: 'S256',
+    code_challenge: codeVerifier,
+    code_challenge_method: 'plain',
   };
   const queryParams = new URLSearchParams(Object.entries(params)).toString();
   const config = {
@@ -52,7 +53,7 @@ export function launchWebAuthFlow() {
             redirect_uri: params.redirect_uri,
             grant_type: 'authorization_code',
             code,
-            code_verifier: params.code_challenge,
+            code_verifier: codeVerifier,
           }),
         });
         const jsonResponse = await response.json();

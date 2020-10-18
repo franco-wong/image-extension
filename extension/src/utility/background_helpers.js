@@ -77,5 +77,5 @@ export const generateRandomString = () => {
 export const generateCodeChallenge = () => {
   const random = generateRandomString();
   const hash = sha256(random);
-  return encodeURI(hash);
+  return [random, encodeURI(hash)];
 };
