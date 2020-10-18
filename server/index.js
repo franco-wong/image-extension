@@ -14,7 +14,8 @@ app.use(express.json());
 
 app.post('/token', async (req, res) => {
 	const REQUIRED_PARAMS = ['redirect_uri', 'grant_type', 'code', 'code_verifier']
-	const areFieldsValid = REQUIRED_PARAMS.every(field => res.body.includes(field));
+	const params = Object.keys(req.body);
+	const areFieldsValid = REQUIRED_PARAMS.every(field => params.includes(field));
 
 	if (!areFieldsValid) {
 		return res.status(400).json({

@@ -72,10 +72,22 @@ export const generateRandomString = () => {
 };
 
 /**
+ * Reference: https://coolaj86.com/articles/typedarray-buffer-to-base64-in-javascript/ 
+ */
+export const bufferToBase64 = (buffer) => {
+  const binaryStr = Array.prototype.map.call(buffer, (byte) => {
+    return String.fromCharCode(byte);
+  }).join('');
+
+  return btoa(binaryStr); // Convert binary string to base64
+}
+
+/**
  * Generate code challenge by generating random, then hashed using SHA256 and finally base64 url encoded
  */
 export const generateCodeChallenge = () => {
-  const random = generateRandomString();
-  const hash = sha256(random);
-  return [random, encodeURI(hash)];
+  const random = window.crypto.getRandomValues(new Uint8Array(44)); // Returns typed array (elements of 8-bit in size)
+  const base64Str = bufferToBase64(random); // Convert buffer to base64 string
+  const hash = sha256(base64Str);
+  return [base64Str, hash];
 };
