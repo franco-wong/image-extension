@@ -1,5 +1,4 @@
 import { GOOGLE_API } from '../utility/constants';
-import { sha256 } from 'js-sha256';
 
 /**
  * Create root folder to store uploaded images
@@ -72,22 +71,70 @@ export const generateRandomString = () => {
 };
 
 /**
- * Reference: https://coolaj86.com/articles/typedarray-buffer-to-base64-in-javascript/ 
+ * Convert decimal (base10) integer to hexadecimal (base16) integer.
+ * @param {Number} dec - Decimal (base10) integer
  */
-export const bufferToBase64 = (buffer) => {
-  const binaryStr = Array.prototype.map.call(buffer, (byte) => {
-    return String.fromCharCode(byte);
-  }).join('');
+function dec2hex(dec) {
+  return ('0' + dec.toString(16)).substr(-2); // Return the beginning two indices only
+}
 
-  return btoa(binaryStr); // Convert binary string to base64
+/**
+ * Generate high-entropy cryptographic random string using the browser's crypto module.
+ */
+function generateCodeVerifier() {
+  const buffer = new Uint32Array(56 / 2);
+  window.crypto.getRandomValues(buffer);
+  return Array.from(buffer, dec2hex).join('');
+}
+
+/**
+ * SHA265 cryptographic hash function 
+ * Reference: https://docs.cotter.app/sdk-reference/api-for-other-mobile-apps/api-for-mobile-apps
+ * @param {String} plain - Plaintext string being hashed
+ * @returns {Promise} ArrayBuffer
+ */
+function sha256(plain) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(plain);
+  return window.crypto.subtle.digest("SHA-256", data);
+}
+
+/**
+ * Base64Url encode the hash value, to avoid reserved character conflict with http headers, file system names, etc.
+ * @param {String} hash - SHA256 hash value
+ */
+function base64UrlEncode(hash) {
+  const str = "";
+  const bytes = new Uint8Array(hash);
+  const len = bytes.byteLength;
+
+  for (let i = 0; i < len; i++) {
+    str += String.fromCharCode(bytes[i]);
+  }
+
+  // Base64Url is essentially Base64 encoding with these "reserved" character replacements
+  return btoa(str)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+/**
+ * The code challenge is constructed from the code verifier through a series of hashing and encoding. 
+ * @param {String} codeVerifier - The pseudo-randomly generated string
+ * @returns {String} - Base64Url encoded hash of the original code verifier value
+ */
+async function generateCodeChallenge(codeVerifier) {
+  const hashed = await sha256(codeVerifier);
+  return base64UrlEncode(hashed);
 }
 
 /**
  * Generate code challenge by generating random, then hashed using SHA256 and finally base64 url encoded
+ * @returns {String[]} Tuple of the code verifier and code challenge in that respective order
  */
-export const generateCodeChallenge = () => {
-  const random = window.crypto.getRandomValues(new Uint8Array(44)); // Returns typed array (elements of 8-bit in size)
-  const base64Str = bufferToBase64(random); // Convert buffer to base64 string
-  const hash = sha256(base64Str);
-  return [base64Str, hash];
+export const generateCodeVerifierAndChallenge = async () => {
+  const codeVerifier = generateCodeVerifier();
+  const codeChallenge = await generateCodeChallenge(codeVerifier);
+  return [codeVerifier, codeChallenge];
 };

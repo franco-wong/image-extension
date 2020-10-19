@@ -17,6 +17,8 @@ app.post('/token', async (req, res) => {
 	const params = Object.keys(req.body);
 	const areFieldsValid = REQUIRED_PARAMS.every(field => params.includes(field));
 
+	console.log(req.body);
+
 	if (!areFieldsValid) {
 		return res.status(400).json({
 			message: 'Mandatory fields are missing.'
@@ -37,12 +39,8 @@ app.post('/token', async (req, res) => {
 			body: newParams,
 			headers: { 'Content-type': 'application/x-www-form-urlencoded' },
 		});
-		const text = await response.text();
-		console.log('CALLED');
-		console.log(text);
-		res.status(200).json({
-			message: 'Fulfilled'
-		});
+		const text = await response.json();
+		res.status(200).json(text);
 	}
 	catch (error) {
 		return res.status(400).json({
