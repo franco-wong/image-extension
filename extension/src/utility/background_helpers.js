@@ -104,9 +104,9 @@ function sha256(plain) {
  * @param {String} hash - SHA256 hash value
  */
 function base64UrlEncode(hash) {
-  const str = "";
   const bytes = new Uint8Array(hash);
   const len = bytes.byteLength;
+  let str = "";
 
   for (let i = 0; i < len; i++) {
     str += String.fromCharCode(bytes[i]);
@@ -138,3 +138,23 @@ export const generateCodeVerifierAndChallenge = async () => {
   const codeChallenge = await generateCodeChallenge(codeVerifier);
   return [codeVerifier, codeChallenge];
 };
+
+export function setStorage(object) {
+  chrome.storage.local.set(object, () => {
+    console.log("Set storage was successful");
+  });
+}
+
+export async function getStorage(keys) {
+  let values = await new Promise((resolve)=>{
+    chrome.storage.local.get(keys, (result) => {
+      resolve(result);
+    });
+  });
+  return values;
+}
+
+export function getFutureTime(expires_in) {
+  const time = new Date().getTime();
+  return (time / 1000) + expires_in;
+}

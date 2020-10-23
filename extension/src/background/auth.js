@@ -2,6 +2,9 @@ import { GOOGLE_API } from '@utilities/constants';
 import {
   generateCodeVerifierAndChallenge,
   generateRandomString,
+  setStorage,
+  getStorage,
+  getFutureTime
 } from '@utilities/background_helpers';
 
 export async function launchWebAuthFlow() {
@@ -58,6 +61,7 @@ export async function launchWebAuthFlow() {
 
     const jsonResponse = await serverResponse.json();
     console.log(jsonResponse); // TODO: store the response somewhere
+    setStorage({ "access_token": jsonResponse.access_token, "access_expiry": getFutureTime(jsonResponse.expires_in)});
   }
   catch(err) {
     console.error(`${err.name}: ${err.message}`);

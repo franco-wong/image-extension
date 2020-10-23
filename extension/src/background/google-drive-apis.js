@@ -19,8 +19,8 @@ Content-Type: image/jpeg
 [JPEG_DATA]
 --foo_bar_baz--
 */
+import { getStorage } from "@utilities/background_helpers";
 
-let access_token;
 const BOUNDARY = 'naween';
 const REQUEST_BODY_DELIM = {
   DELIMITER: '\r\n--' + BOUNDARY + '\r\n',
@@ -35,7 +35,7 @@ function getFullUploadRequestURI() {
 }
 
 function getAuthBearer() {
-  return `Bearer ${access_token}`;
+  return `Bearer ${getStorage(["access_token"])}`;
 }
 
 // a base64 string will start with "data:[image/jpeg];base64,[/9j/4AAQS...]", the []s is what I'm extracting below
@@ -137,7 +137,6 @@ function resolveImageTitleAndSource(
 }
 
 export function startUploading(
-  accessToken,
   listOfImages,
   tabURL,
   tabTitle,
@@ -145,7 +144,6 @@ export function startUploading(
   searchEngine
 ) {
   let imagePromisify = [];
-  access_token = accessToken;
 
   let imageTitle = null;
   let imageSource = null;

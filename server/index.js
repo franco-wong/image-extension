@@ -6,7 +6,7 @@ const express = require('express')
 const fetch = require('node-fetch');
 const cors = require('cors');
 const app = express()
-const port = 3002
+const port = process.env.PORT || 3002
 const AuthDomain = "https://accounts.google.com/o/oauth2/auth"
 
 app.use(cors())
