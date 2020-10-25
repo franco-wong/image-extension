@@ -4,10 +4,11 @@ import { retrieveGDriveFolderId, getStorage } from '../utility/background_helper
 
 const now = new Date();
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   switch (request.command) {
     case 'UPLOAD_IMAGES':
-      retrieveGDriveFolderId(accessToken.code).then((folderId) => {
+      const { access_token } = await getStorage(['access_token']);
+      retrieveGDriveFolderId(access_token).then((folderId) => {
         const imagePromisify = startUploading(
           request.images,
           sender.tab.url,
@@ -31,9 +32,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  * and the page source relative to the image tag (only if the domain is a search engine in the list).
  * If there is no relative href, the search engine page link will be used
  */
-chrome.browserAction.onClicked.addListener((tab) => {
+chrome.browserAction.onClicked.addListener(async (tab) => {
   const currTime = Math.round(now.getTime() / 1000);
-  const access_expiry = getStorage(["access_expiry"]);
+  const { access_expiry } = await getStorage(["access_expiry"]);
 
   if (access_expiry !== undefined && currTime < access_expiry) {
     chrome.tabs.sendMessage(tab.id, { command: 'TOGGLE_APP_MODAL' });
