@@ -7,19 +7,7 @@ import {
   getFutureTime
 } from '@utilities/background_helpers';
 
-/**
- * TODO: Refresh access token
- */
-function sendRefreshTokenRequest() {}
-
 export async function launchWebAuthFlow() {
-  const store = await getStorage();
-  const currTime = new Date().getTime();
-  if (store.access_expiry && currTime > store.access_expiry) {
-    sendRefreshTokenRequest();
-    return;
-  }
-
   const [codeVerifier, codeChallenge] = await generateCodeVerifierAndChallenge();
   const params = {
     client_id: GOOGLE_API.ClientId,
