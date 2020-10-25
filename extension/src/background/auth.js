@@ -7,7 +7,19 @@ import {
   getFutureTime
 } from '@utilities/background_helpers';
 
+/**
+ * TODO: Refresh access token
+ */
+function sendRefreshTokenRequest() {}
+
 export async function launchWebAuthFlow() {
+  const store = await getStorage();
+  const currTime = new Date().getTime();
+  if (store.access_expiry && currTime > store.access_expiry) {
+    sendRefreshTokenRequest();
+    return;
+  }
+
   const [codeVerifier, codeChallenge] = await generateCodeVerifierAndChallenge();
   const params = {
     client_id: GOOGLE_API.ClientId,
@@ -59,9 +71,13 @@ export async function launchWebAuthFlow() {
       }),
     });
 
-    const jsonResponse = await serverResponse.json();
-    console.log(jsonResponse); // TODO: store the response somewhere
-    setStorage({ "access_token": jsonResponse.access_token, "access_expiry": getFutureTime(jsonResponse.expires_in)});
+    const { access_token, expires_in, refresh_token } = await serverResponse.json();
+
+    setStorage({
+      'access_token': access_token,
+      'access_expiry': getFutureTime(expires_in),
+      'refresh_token': refresh_token
+    });
   }
   catch(err) {
     console.error(`${err.name}: ${err.message}`);
