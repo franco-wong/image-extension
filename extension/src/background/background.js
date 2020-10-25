@@ -32,12 +32,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  * If there is no relative href, the search engine page link will be used
  */
 chrome.browserAction.onClicked.addListener((tab) => {
-  // const epochTime = Math.round(now.getTime() / 1000);
-  // const access_expiry = getStorage(["access_expiry"]);
-  // if (access_expiry !== undefined && epochTime < access_expiry)) {
-  //   chrome.tabs.sendMessage(tab.id, { command: 'TOGGLE_APP_MODAL' });
-  //   return;
-  // }
+  const currTime = Math.round(now.getTime() / 1000);
+  const access_expiry = getStorage(["access_expiry"]);
+
+  if (access_expiry !== undefined && currTime < access_expiry) {
+    chrome.tabs.sendMessage(tab.id, { command: 'TOGGLE_APP_MODAL' });
+    return;
+  }
 
   launchWebAuthFlow();
 });
