@@ -1,8 +1,10 @@
 .DS_Store
 /extension/node_modules
 /extension/dist
+/server/node_modules
 
 # local env files
+.env
 .env.local
 .env.*.local
 

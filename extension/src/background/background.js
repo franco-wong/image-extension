@@ -1,6 +1,6 @@
 import { startUploading } from './google-drive-apis';
 import { launchWebAuthFlow } from './auth';
-import { retrieveGDriveFolderId } from '../utility/background_helpers';
+import { retrieveGDriveFolderId, getStorage } from '../utility/background_helpers';
 
 const now = new Date();
 
@@ -9,7 +9,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     case 'UPLOAD_IMAGES':
       retrieveGDriveFolderId(accessToken.code).then((folderId) => {
         const imagePromisify = startUploading(
-          accessToken.code,
           request.images,
           sender.tab.url,
           sender.tab.title,
@@ -33,12 +32,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  * If there is no relative href, the search engine page link will be used
  */
 chrome.browserAction.onClicked.addListener((tab) => {
-  // const epochTime = Math.round(now.getTime() / 1000);
+  const currTime = Math.round(now.getTime() / 1000);
+  const access_expiry = getStorage(["access_expiry"]);
 
-  // if (epochTime < accessToken.expiry) {
-  //   chrome.tabs.sendMessage(tab.id, { command: 'TOGGLE_APP_MODAL' });
-  //   return;
-  // }
+  if (access_expiry !== undefined && currTime < access_expiry) {
+    chrome.tabs.sendMessage(tab.id, { command: 'TOGGLE_APP_MODAL' });
+    return;
+  }
 
   launchWebAuthFlow();
 });

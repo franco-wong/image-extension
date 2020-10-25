@@ -1,65 +1,73 @@
 import { GOOGLE_API } from '@utilities/constants';
 import {
-  generateCodeChallenge,
+  generateCodeVerifierAndChallenge,
   generateRandomString,
+  setStorage,
+  getStorage,
+  getFutureTime
 } from '@utilities/background_helpers';
 
-export function launchWebAuthFlow() {
+export async function launchWebAuthFlow() {
+  const [codeVerifier, codeChallenge] = await generateCodeVerifierAndChallenge();
   const params = {
     client_id: GOOGLE_API.ClientId,
     redirect_uri: chrome.identity.getRedirectURL(),
     response_type: 'code',
     scope: GOOGLE_API.Scope,
     state: generateRandomString(),
-    code_challenge: generateCodeChallenge(),
+    code_challenge: codeChallenge,
     code_challenge_method: 'S256',
   };
+
   const queryParams = new URLSearchParams(Object.entries(params)).toString();
   const config = {
     url: `${GOOGLE_API.AuthDomain}?${queryParams}`,
     interactive: true,
   };
 
-  // Launch auth flow (sign-in)
+  // Step 1 - Launch auth flow (sign-in window) and retrieve code after permission(s) approval
   const authFlow = new Promise((resolve, reject) => {
     chrome.identity.launchWebAuthFlow(config, (response) => {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError.message);
       }
-
       resolve(response);
     });
   });
 
-  // Exchange code for access token
-  authFlow
-    .then(async (response) => {
-      const url = new URL(response);
-      const code = url.searchParams.get('code');
-      const state = url.searchParams.get('state');
+  try {
+    const googleResponse = await authFlow.then();
+    const url = new URL(googleResponse);
+    const code = url.searchParams.get('code');
+    const state = url.searchParams.get('state');
 
-      if (params.state !== state) {
-        Promise.reject('Response and request state do not match..');
-      }
+    if (params.state !== state) {
+      throw new Error('Response and request state do not match...');
+    }
 
-      try {
-        const response = await fetch(WP_TOKEN_ENDPOINT, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            client_id: GOOGLE_API.ClientId,
-            grant_type: 'authorization_code',
-            code,
-            code_verifier: param.code_challenge,
-          }),
-        });
-        const jsonResponse = await response.json();
-        console.log(jsonResponse);
-      } catch (error) {
-        console.error(error);
-      }
-    })
-    .catch(console.error);
+    // Step 2 - Exchange code for access token & refresh token
+    const serverResponse = await fetch(WP_TOKEN_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        redirect_uri: params.redirect_uri,
+        grant_type: 'authorization_code',
+        code,
+        code_verifier: codeVerifier,
+      }),
+    });
+
+    const { access_token, expires_in, refresh_token } = await serverResponse.json();
+
+    setStorage({
+      'access_token': access_token,
+      'access_expiry': getFutureTime(expires_in),
+      'refresh_token': refresh_token
+    });
+  }
+  catch(err) {
+    console.error(`${err.name}: ${err.message}`);
+  }
 }

@@ -1,3 +1,3 @@
-export const BackgroundGlobals = {
-  accessToken: null,
-};
+// export const BackgroundGlobals = {
+//   accessToken: null,
+// };
