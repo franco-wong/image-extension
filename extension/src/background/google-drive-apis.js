@@ -34,10 +34,6 @@ function getFullUploadRequestURI() {
   return `${REQUEST_URI}?uploadType=${UPLOAD_TYPE}`;
 }
 
-function getAuthBearer() {
-  return `Bearer ${getStorage(["access_token"])}`;
-}
-
 // a base64 string will start with "data:[image/jpeg];base64,[/9j/4AAQS...]", the []s is what I'm extracting below
 function buildRequestBody(base64, metaData) {
   const base64_data = base64.split(';');
@@ -68,11 +64,12 @@ function getImageBlob(url) {
   });
 }
 
-function buildRequestHeader(requestBody) {
+async function buildRequestHeader(requestBody) {
+  const { access_token } = await getStorage(["access_token"]);
   return {
     method: 'POST',
     headers: {
-      Authorization: getAuthBearer(),
+      Authorization: `Bearer ${access_token}`,
       'Content-Type': HEADER_CONTENT_TYPE,
       'Content-Length': requestBody.length,
     },
