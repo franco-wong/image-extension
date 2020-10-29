@@ -3,7 +3,6 @@ import {
   generateCodeVerifierAndChallenge,
   generateRandomString,
   setStorage,
-  getStorage,
   getFutureTime
 } from '@utilities/background_helpers';
 

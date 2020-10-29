@@ -6,12 +6,7 @@ export class SearchEngine {
     this.domain_rules = searchEngine.steps;
     this.selector = searchEngine.selector;
     this.url = url;
-
-    if (this.domain === 'yahoo') {
-      this.secondaryPage = searchEngine.secondary;
-    } else {
-      this.secondaryPage = null;
-    }
+    this.secondaryPage = searchEngine.secondary;
   }
 
   stepThroughDOM(steps, tag) {
