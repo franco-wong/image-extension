@@ -35,6 +35,12 @@ export const RULE_SET = {
       regex: /www\.google\.(ca|com)\/search\?.*tbm=isch/,
       steps: ['up', 'up', 'next'],
       selector: ['Q4LuWd'],
+      secondary: {
+        titleRegex:
+          '',
+        urlRegex:
+          '',
+      },
       // only select image nodes that has the class name 'Q4LuWd'
       // OR
       // the top bar of images of the page has the class 'BcUvif'

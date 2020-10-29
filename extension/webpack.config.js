@@ -67,15 +67,16 @@ module.exports = (env, argv) => {
     ],
   };
 
-  if (isDevelopment) {
-    // Add env variable during dev mode to toggle certain behaviour
-    const url = isDevelopment ? 'http://localhost:3002/token' : 'https://gdrive-image-server.herokuapp.com/token';
-    webpackConfig.plugins.push(
-      new DefinePlugin({
-        WP_TOKEN_ENDPOINT: JSON.stringify(url),
-      })
-    );
+  // Add env variable during dev mode to toggle certain behaviour
+  const url = isDevelopment ? 'http://localhost:3002/token' : 'https://gdrive-image-server.herokuapp.com/token';
 
+  webpackConfig.plugins.push(
+    new DefinePlugin({
+      WP_TOKEN_ENDPOINT: JSON.stringify(url),
+    })
+  );
+
+  if (isDevelopment) {
     // To retrigger build on code changes during development
     webpackConfig.plugins.push(
       new ExtensionReloader({
