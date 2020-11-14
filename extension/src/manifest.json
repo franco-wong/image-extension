@@ -3,6 +3,7 @@
   "name": "GDrive Image Uploader",
   "version": "1.0.0",
   "description": "Uploads images founds on web pages directly to your GDrive account",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkQakVy72lLUQvOmwz/7aoxLOjCnsUJRO0SN2PA/Kqk7AAymB/qGpEVuIOnVOlUggAQKgjsen/BPnjq9P18S8QvkLbpJtR16xVgFCp+qTvKIVu/rVBTTXcjg6ZVoQ8aS0qbjWEj9LUtYNdpn82hJDxHVRtUL8ZRpRjgOoUGP8sp1oMhNTneH+Ou+pRecxVSMxjjz8c+vfb8S0zDLrOtH0Ct61pNUMfuMO+lKMBQnO3XoKPK8sVBuGaouxfPLJ3XI8F74icjAkWElZCCwqWaNnVXDnydMs2Le7BShSd8JYGmDuRFJ4DLK1PRNANyM5T1kVB3AgBrHZDs+kY4qRWAN6SQIDAQAB",
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "browser_action": {
     "default_title": "GDrive Browser Action",
